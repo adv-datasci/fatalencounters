@@ -6,10 +6,8 @@ library(spatial)
 # Delete code for data explorer tab
 # Change names of variables
 
-
-# Choices for drop-downs
-
-#11
+#12/5:
+# Deleted some unnecessary comments
 
 vars <- c(
   "Race" = "race",
