@@ -26,21 +26,6 @@ library(dplyr)
 
 #setwd("your/directory/here")
 
-
-########## Not sure if we need this piece of code below
-
-# Leaflet bindings are a bit slow; for now we'll just sample to compensate
-#set.seed(100)
-#zipdata <- allzips[sample.int(nrow(allzips), 10000),]
-# By ordering by centile, we ensure that the (comparatively rare) SuperZIPs
-# will be drawn last and thus be easier to see
-#zipdata <- zipdata[order(zipdata$centile),]
-
-#cleantable_sm <- cleantable[sample.int(nrow(cleantable), 10000),]
-
-#allzips is about 30k observations, cleantable is 22ks
-#final table is 13.5k observations
-
 function(input, output, session) {
 
   ## Interactive Map ###########################################

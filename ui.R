@@ -12,18 +12,11 @@ library(spatial)
 #11
 
 vars <- c(
-  #"Is SuperZIP?" = "superzip",
-  #"Centile score" = "centile",
-  #"College education" = "college",
-  #"Median income" = "income",
-  #"Population" = "adultpop"
-
   "Race" = "race",
   "Sex" = "sex",
   "Age" = "age",
   "Cause of death" = "cause"
 )
-
 
 navbarPage("Fatal Encounters", id="nav",
 
