@@ -98,20 +98,16 @@ temp2<-inner_join(county_dat,temp1,by =c("state","county"))
 temp3<- temp2 %>%
   select(GEOID,state,county,"pminusdratio")
 
-#Set NA to 0
+
 temp4<-left_join(county_dat,temp3,by=c("state","county")) %>%
   select("GEOID.x", "state","county","pminusdratio")
-
 colnames(temp4)<-c("GEOID", "state","county","pminusdratio")
 temp5<-unique(temp4)
 
+#Set NA to 0
 temp5$pminusdratio[is.na(temp5$pminusdratio)]<-0
 
-#saveRDS(temp5,file.path("data","county_death_data.RDS"))
-
 county_dat<-temp5
-
-######################
 
 #If needed:
 # Download county shape file from Tiger.

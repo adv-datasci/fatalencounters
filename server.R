@@ -22,16 +22,26 @@ library(dplyr)
 #12/3
 #incorporate cleaned datasest
 
+#12/9
+#add pop-ups with victim information
+
 ########## Set working directory #####
 
 #setwd("your/directory/here")
 
+# Read in the data
+cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset.RDS"))
+
+#There are multiple shootings at the same zip codes, so add
+#random noise to ensure that the markers don't overlap
+cleantable$lat<-jitter(cleantable$lat)
+cleantable$long<-jitter(cleantable$long) 
+
 function(input, output, session) {
-
+  
   ## Interactive Map ###########################################
-  cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset.RDS"))
-
-    # Create the map
+  
+  # Create the map
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles(
@@ -40,28 +50,28 @@ function(input, output, session) {
       ) %>%
       setView(lng = -93.85, lat = 37.45, zoom = 4)
   })
-
+  
   # A reactive expression that returns the set of zips that are
   # in bounds right now
-
+  
   zipsInBounds <- reactive({
     if (is.null(input$map_bounds))
       return(cleantable[FALSE,])
     bounds <- input$map_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
-
+    
     subset(cleantable,
            lat >= latRng[1] & lat <= latRng[2] &
              long >= lngRng[1] & long <= lngRng[2])
   })
-
+  
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
     # If no zipcodes are in view, don't plot
     if (nrow(zipsInBounds()) == 0)
       return(NULL)
-
+    
     barplot(prop.table(table(zipsInBounds()$race)),
             #breaks = centileBreaks,
             main = "Racial demographics of fatal encounters",
@@ -72,12 +82,12 @@ function(input, output, session) {
             col = '#00DD00',
             border = 'white')
   })
-
+  
   output$plot2 <- renderPlot({
     # If no zipcodes are in view, don't plot
     if (nrow(zipsInBounds()) == 0)
       return(NULL)
-
+    
     barplot(prop.table(table(zipsInBounds()$cause)),
             #breaks = centileBreaks
             main = "Cause of death",
@@ -88,97 +98,113 @@ function(input, output, session) {
             #xlim = range(allzips$centile),
             col = '#00DD00',
             border = 'white')
-      })
-
+  })
+  
   # This observer is responsible for maintaining the circles and legend,
   # according to the variables the user has chosen to map to color and size.
   observe({
     colorBy <- input$color
     sizeBy <- input$size
-
+    
     #Colors Superzip points differently than non-Superzip
     #Could color differently by race or cause of death
     #If you want to specify specific colors instead of palette, need to draw
-      #map with
-
+    #map with
+    
     if (colorBy == "race") {
       colorData <- factor(cleantable$race)
       pal <- colorFactor("viridis", colorData)
-
+      
       #Change this to specify each race as a more intuitive color?
       #pal <- c("black","white","yellow","brown","red", "orange", "green")
     } else if (colorBy == "cause") {
       colorData <- factor(cleantable$cause)
       pal <- colorFactor("viridis", colorData)
-
+      
     } else if (colorBy == "sex") {
       colorData <- factor(cleantable$sex)
       pal <- colorFactor("viridis", colorData)
+      
+    } else if (colorBy == "age") {
+      colorData <- factor(cleantable$agerng)
+      
+      #TODO: get the age groups in order
+      # sfactors<-sort(unique(factor(cleantable$agerng)))
+      # factors
+      # facordered<-colorData[order(nchar(colorData), colorData)]
 
-      } else if (colorBy == "age") {
-      colorData <- cleantable[[colorBy]]
-      pal <- colorBin("viridis", colorData, 7, pretty = FALSE)
+      pal <- colorFactor("viridis", colorData)
     }
-
-
+    
+    
     #Draws the map and adds the legend
     leafletProxy("map", data = cleantable) %>%
       clearShapes() %>%
-      #addCircles(~longitude, ~latitude, radius=radius, layerId=~zipcode,
-      #           stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
-
-      #Changed radius
-      addCircleMarkers(~long, ~lat, radius=3, layerId=~zipcode,
-                 stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
-      #addMarkers(~long, ~lat, radius=1, layerId=~zipcode,
-      #           stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
+      addCircleMarkers(~long, ~lat, radius=3, layerId=~name,                       
+                       stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
       addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
                 layerId="colorLegend")
   })
-
-  # Show a popup at the given location
-  #Include information about the shooting and victim
-  # showZipcodePopup <- function(zipcode, lat, lng) {
-  #   selectedZip <- allzips[allzips$zipcode == zipcode,]
-  #   content <- as.character(tagList(
-  #     tags$h4("Score:", as.integer(selectedZip$centile)),
-  #     tags$strong(HTML(sprintf("%s, %s %s",
-  #                              selectedZip$city.x, selectedZip$state.x, selectedZip$zipcode
-  #     ))), tags$br(),
-  #     sprintf("Median household income: %s", dollar(selectedZip$income * 1000)), tags$br(),
-  #     sprintf("Percent of adults with BA: %s%%", as.integer(selectedZip$college)), tags$br(),
-  #     sprintf("Adult population: %s", selectedZip$adultpop)
-  #   ))
-  #   leafletProxy("map") %>% addPopups(lng, lat, content, layerId = zipcode)
-  # }
-
-  # # When map is clicked, show a popup with city info
-  # observe({
-  #   leafletProxy("map") %>% clearPopups()
-  #   event <- input$map_shape_click
-  #   if (is.null(event))
-  #     return()
-  #
-  #   isolate({
-  #     showZipcodePopup(event$id, event$lat, event$lng)
-  #   })
-  # })
-
-############ Heat map ###############
-
+  
+  # allzips <- readRDS(file.path("data","raw_data","superzip.rds"))
+  # allzips$latitude <- jitter(allzips$latitude)
+  # allzips$longitude <- jitter(allzips$longitude)
+  # allzips$college <- allzips$college * 100
+  # allzips$zipcode <- formatC(allzips$zipcode, width=5, format="d", flag="0")
+  # row.names(allzips) <- allzips$zipcode
+  
+  showZipcodePopup <- function(name, lat, lng) {
+   selectedZip <- cleantable[cleantable$name == name,]
+        content <- as.character(tagList(
+      #tags$h4("Name:", selectedZip$name),
+      tags$strong("Name:", selectedZip$name),tags$br(),
+      # tags$strong(HTML(sprintf("%s, %s %s",
+      #                          selectedZip$city, selectedZip$state, selectedZip$zipcode
+      # ))), tags$br(),
+      sprintf("%s, %s %s",
+                                selectedZip$city, selectedZip$state, selectedZip$zipcode
+       ), tags$br(),
+      sprintf("Sex: %s", selectedZip$sex), tags$br(),
+      sprintf("Age: %s", selectedZip$age), tags$br(),
+      sprintf("Race: %s", selectedZip$race), tags$br(),
+      # sprintf("ClickID: %s", name), tags$br(),
+      # sprintf("DatasetLat: %s", selectedZip$lat[1]), tags$br(),
+      # sprintf("Lat: %s", lat), tags$br(),
+      # sprintf("DatasetLong: %s", selectedZip$long[1]), tags$br(),
+      # sprintf("Long: %s", lng), tags$br(),
+      sprintf("Cause of death: %s", selectedZip$cause)
+    ))
+    leafletProxy("map") %>% addPopups(lng, lat, content, layerId = name)
+  }
+  
+  # When map is clicked, show a popup with city info
+  observe({
+    leafletProxy("map") %>% clearPopups()
+    #event <- input$map_shape_click
+    event <- input$map_marker_click
+    if (is.null(event))
+      return()
+    
+    isolate({
+      showZipcodePopup(event$id, event$lat, event$lng)
+    })
+  })
+  
+  ############ Heat map ###############
+  
   # Merge spatial df with downloaded ddata.
-#  leafmap <- merge(us.map, county_dat, by=c("GEOID"))
-
+  #  leafmap <- merge(us.map, county_dat, by=c("GEOID"))
+  
   leafmap <-readRDS(file.path("data","processed_data","heatmap_data.RDS"))
-
+  
   # Format popup data for leaflet map.
   popup_dat <- paste0("<strong>County: </strong>",
                       leafmap$NAME,
                       "<br><strong>Value: </strong>",
                       leafmap$pminusdratio)
-
+  
   pal <- colorQuantile("YlOrRd", NULL, n = 9)
-
+  
   # Create the map
   output$heatmap <- renderLeaflet({
     # Render final map in leaflet.
@@ -189,13 +215,13 @@ function(input, output, session) {
                   color = "#BDBDC3",
                   weight = 1,
                   popup = popup_dat) %>%
-    setView(lng = -93.85, lat = 37.45, zoom = 4)
+      setView(lng = -93.85, lat = 37.45, zoom = 4)
   })
-
-###########################
-
-# Data Explorer ###########################################
-
+  
+  ###########################
+  
+  # Data Explorer ###########################################
+  
   observe({
     cities <- if (is.null(input$states)) character(0) else {
       filter(cleantable, State %in% input$states) %>%
@@ -207,7 +233,7 @@ function(input, output, session) {
     updateSelectInput(session, "cities", choices = cities,
                       selected = stillSelected)
   })
-
+  
   observe({
     zipcodes <- if (is.null(input$states)) character(0) else {
       cleantable %>%
@@ -221,7 +247,7 @@ function(input, output, session) {
     updateSelectInput(session, "zipcodes", choices = zipcodes,
                       selected = stillSelected)
   })
-
+  
   observe({
     if (is.null(input$goto))
       return()
@@ -236,7 +262,7 @@ function(input, output, session) {
       map %>% fitBounds(lng - dist, lat - dist, lng + dist, lat + dist)
     })
   })
-
+  
   output$ziptable <- DT::renderDataTable({
     df <- cleantable %>%
       filter(
@@ -248,10 +274,11 @@ function(input, output, session) {
       ) %>%
       mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
     action <- DT::dataTableAjax(session, df)
-
+    
     DT::datatable(df, options = list(ajax = list(url = action)), escape = FALSE)
   })
- }
+  
+}
 
 
 
