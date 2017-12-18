@@ -2,13 +2,15 @@ library(sp)
 library(rgeos)
 library(rgdal)
 library(maptools)
-
 library(leaflet)
-library(leaflet.extras)
 library(RColorBrewer)
 library(scales)
 library(lattice)
 library(dplyr)
+
+#Must be installed from github
+#devtools::install_github('bhaskarvk/leaflet.extras')
+library(leaflet.extras)
 
 #EDITS
 #11/26:
@@ -26,6 +28,15 @@ library(dplyr)
 #12/9
 #add pop-ups with victim information
 
+#12/17K
+# Finished UI to allow user to choose what variable to put in
+#           one histogram
+#Added heatmap, edited data explorer, added intro
+
+#12/18L
+# Finished UI to allow user to choose which demographics
+#           to put on the map
+
 ########## Set working directory #####
 
 #setwd("your/directory/here")
@@ -38,14 +49,10 @@ cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset.RDS"
 cleantable$lat<-jitter(cleantable$lat)
 cleantable$long<-jitter(cleantable$long) 
 
+#Copy to modify when user specifies certain demographics
+cleantable_unmodified<-cleantable
+
 function(input, output, session) {
-  
-  output$ex_out <- renderPrint({
-    str(sapply(sprintf('e%d', 0:7), function(id) {
-      input[[id]]
-    }, simplify = FALSE))
-  })
-  
   ## Interactive Map ###########################################
   
   # Create the map
@@ -72,6 +79,57 @@ function(input, output, session) {
            lat >= latRng[1] & lat <= latRng[2] &
              long >= lngRng[1] & long <= lngRng[2])
   })
+  
+  #################
+  #Select variables to include in map
+  #################
+  
+  #updateSelectizeInput(session, "selectize", choices=levels(factor(cleantable$race)), selected=choices[selectionIndex], 
+  #                     server = TRUE)
+  nValues <- 1002
+  choices <- as.character(1:nValues)
+  selectionIndex <- 1000
+  
+  observe({
+    colorBy <- input$color
+    if (colorBy == "race") {
+      updateSelectizeInput(session, "selectize",
+                           choices=levels(factor(cleantable$race)), selected=choices[selectionIndex], 
+                           server = TRUE)
+    } else if (colorBy == "sex") {
+      updateSelectizeInput(session, "selectize",
+                           choices=levels(factor(cleantable$sex)), selected=choices[selectionIndex], 
+                           server = TRUE)
+    } else if (colorBy == "age") {
+      updateSelectizeInput(session, "selectize",
+                           choices=c("< 1 year","1 - 4 years", "5 - 9 years",
+                                     "10 - 14 years","15 - 19 years",
+                                     "20 - 24 years","25 - 34 years",
+                                     "35 - 44 years","45 - 54 years",
+                                     "55 - 64 years","65 - 74 years",
+                                     "75 - 84 years","85+ years"
+                           )
+                           , selected=choices[selectionIndex], 
+                           server = TRUE)
+    } else if (colorBy == "cause") {
+      updateSelectizeInput(session, "selectize",
+                           choices=levels(factor(cleantable$cause)), selected=choices[selectionIndex], 
+                           server = TRUE)
+    }
+  })
+  
+  
+  subsetData <- reactive({
+    selected<-input$selectize
+    
+    if (is.na(selected)){
+      return(cleantable)
+    } else {
+      a <- subset(cleantable, category == selected)
+      return(a)
+    }
+  })
+  
   
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
@@ -151,12 +209,18 @@ function(input, output, session) {
   # according to the variables the user has chosen to map to color and size.
   observe({
     colorBy <- input$color
-    sizeBy <- input$size
+    #selectedFactors<-input$selectize
     
-    #Colors Superzip points differently than non-Superzip
-    #Could color differently by race or cause of death
-    #If you want to specify specific colors instead of palette, need to draw
-    #map with
+    #colorBy <- "sex"
+    #selectedFactors<-c("Male","Transgender")
+    #sprintf(colorBy,'%in%','selectedFactors')
+    
+    #paste()
+    #eval(parse(paste(colorBy,'%in%','selectedFactors')))
+    
+    #cleantable<-subset(cleantable_unmodified, race %in% selectedFactors)
+    #cleantable<-subset(cleantable_unmodified,paste(colorBy,'%in%','selectedFactors'))))
+    
     
     #custom_palette <-trimws(c("#8c510a ", "#d8b365 ", "#f6e8c3 ", "#c7eae5 ", "#5ab4ac ", "#01665e "))
     
@@ -184,33 +248,35 @@ function(input, output, session) {
                               "55 - 64 years","65 - 74 years",
                               "75 - 84 years","85+ years"
                             )
-                          )
-
+      )
+      
       pal <- colorFactor("viridis", colorData)
-    
+      
     } else if (colorBy == "year") {
       colorData <- factor(cleantable$year)
       pal <- colorFactor("Dark2", colorData)
       
     }
     
+    #output$table1 <- renderTable(df_subset())
     
     #Draws the map and adds the legend
     leafletProxy("map", data = cleantable) %>%
+      #leafletProxy("map") %>%
       clearShapes() %>%
-      addCircleMarkers(~long, ~lat, radius=3, layerId=~name,                       
-                       stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
+      addCircleMarkers( ~long, ~lat, radius=3, layerId=~name,                       
+                        stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
       addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
                 layerId="colorLegend")
   })
   
   showZipcodePopup <- function(name, lat, lng) {
-   selectedZip <- cleantable[cleantable$name == name,]
-        content <- as.character(tagList(
+    selectedZip <- cleantable[cleantable$name == name,]
+    content <- as.character(tagList(
       tags$strong("Name:", selectedZip$name),tags$br(),
       sprintf("%s, %s %s",
-                                selectedZip$city, selectedZip$state, selectedZip$zipcode
-       ), tags$br(),
+              selectedZip$city, selectedZip$state, selectedZip$zipcode
+      ), tags$br(),
       sprintf("Sex: %s", selectedZip$sex), tags$br(),
       sprintf("Age: %s", selectedZip$age), tags$br(),
       sprintf("Race: %s", selectedZip$race), tags$br(),
@@ -260,34 +326,34 @@ function(input, output, session) {
       rrcolorData <- leafmap$asianrr
       pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
     } 
-  
+    
     # Format popup data for leaflet map.
     popup_dat <- paste0("<strong>County: </strong>",
                         leafmap$NAME,
                         "<br><strong>Risk: </strong>",
                         round(rrcolorData, 2))
     
-  # Create the map
-  output$heatmap <- renderLeaflet({
-    # Render final map in leaflet.
-    leaflet(data = leafmap) %>%
-      addTiles() %>%
-      addPolygons(fillColor = ~pal(rrcolorData),
-                  fillOpacity = 0.8,
-                  color = "#BDBDC3",
-                  weight = 1,
-                  popup = popup_dat,
-                  label = ~NAME,
-                  group = 'counties') %>%
-      setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
-      addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Relative Risk of Fatal Encounter',
-                layerId="riskLegend") %>%
-      addSearchFeatures(
-        targetGroups  = 'counties',
-        options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
-      addResetMapButton() %>%
-      addControl("<P><B>Rate of police-involved death</B> per 100,000 population</P><P>Since the year 2000</P><P>Search by county name</P>",
-                 position='bottomright')
+    # Create the map
+    output$heatmap <- renderLeaflet({
+      # Render final map in leaflet.
+      leaflet(data = leafmap) %>%
+        addTiles() %>%
+        addPolygons(fillColor = ~pal(rrcolorData),
+                    fillOpacity = 0.8,
+                    color = "#BDBDC3",
+                    weight = 1,
+                    popup = popup_dat,
+                    label = ~NAME,
+                    group = 'counties') %>%
+        setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
+        addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Relative Risk of Fatal Encounter',
+                  layerId="riskLegend") %>%
+        addSearchFeatures(
+          targetGroups  = 'counties',
+          options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
+        addResetMapButton() %>%
+        addControl("<P><B>Rate of police-involved death</B> per 100,000 population</P><P>Since the year 2000</P><P>Search by county name</P>",
+                   position='bottomright')
     })
   })
   

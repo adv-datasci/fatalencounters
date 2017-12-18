@@ -33,42 +33,42 @@ rrraces <- c(
 )
 
 navbarPage("Fatal Encounters", id="nav",
-
+           
            tabPanel("Intro",
-                   fluidPage(
-                       div(id = "about", class = "card",  
-                       includeMarkdown("./about.Rmd")
-                       )
-                   )
+                    fluidPage(
+                      div(id = "about", class = "card",  
+                          includeMarkdown("./about.Rmd")
+                      )
+                    )
            ),
            tabPanel("Deaths",
                     div(class="outer",
-
+                        
                         tags$head(
                           # Include our custom CSS
                           includeCSS("styles.css"),
                           includeScript("gomap.js")
                         ),
-
+                        
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
                         leafletOutput("map", width="100%", height="100%"),
-
+                        
                         # Shiny versions prior to 0.11 should use class = "modal" instead.
                         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                                       draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
                                       width = 330, height = "auto",
-
+                                      
                                       #Title of the sidebar
                                       h3("Mapping Individual Deaths"),
-
+                                      
                                       #Various icon inputs
                                       selectInput("color", "Color", vars, selected = "race"),
                                       #selectInput("Histogram", "Size", vars, selected = "adultpop"),
                                       
                                       selectizeInput(
-                                        'e2',
+                                        'selectize',
                                         'Select values to display on map',
-                                        choices = state.name, multiple = TRUE
+                                        choices = NULL, multiple = TRUE ##############
                                       ),
                                       
                                       selectInput("hist", "Histogram variable", vars, selected = "adultpop"),
@@ -76,16 +76,16 @@ navbarPage("Fatal Encounters", id="nav",
                                                        # Only prompt for threshold when coloring or sizing by superzip
                                                        numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)
                                       ),
-
+                                      
                                       #Bar plots below the user interface
                                       #plotOutput("histCentile", height = 200),
                                       #plotOutput("scatterCollegeIncome", height = 250)
-
+                                      
                                       #plotOutput("plot1", height = 250),
                                       #plotOutput("plot2", height = 250)
                                       plotOutput("plot1", height = 400)
                         ),
-
+                        
                         tags$div(id="cite",
                                  'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
                         )
@@ -119,20 +119,20 @@ navbarPage("Fatal Encounters", id="nav",
                         )
                     )
            ),
-                    
-#                    div(class="outer",
-#                        tags$head(
-#                          # Include our custom CSS
-#                          includeCSS("styles.css"),
-#                          includeScript("gomap.js")
-#                        ),
-                        # If not using custom CSS, set height of leafletOutput to a number instead of percent
-#                        leafletOutput("heatmap", width="100%", height="100%")
-#                          leafletOutput("heatmap", width=1000, height=1000)
-#                    ),
-
+           
+           #                    div(class="outer",
+           #                        tags$head(
+           #                          # Include our custom CSS
+           #                          includeCSS("styles.css"),
+           #                          includeScript("gomap.js")
+           #                        ),
+           # If not using custom CSS, set height of leafletOutput to a number instead of percent
+           #                        leafletOutput("heatmap", width="100%", height="100%")
+           #                          leafletOutput("heatmap", width=1000, height=1000)
+           #                    ),
+           
            ## Data Explorer ###########################################
-
+           
            tabPanel("Data explorer",
                     fluidRow(
                       column(3,
@@ -160,6 +160,6 @@ navbarPage("Fatal Encounters", id="nav",
                     hr(),
                     DT::dataTableOutput("ziptable")
            ),
-
+           
            conditionalPanel("false", icon("crosshair"))
 )
