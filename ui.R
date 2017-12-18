@@ -10,7 +10,7 @@ library(spatial)
 # Deleted some unnecessary comments
 
 #12/17L
-# Fixed order of factors
+# Fixed order of age factors
 # Updated UI to allow user to choose which demographics
 #           to put on the map (not done)
 # Updated UI to allow user to choose what variable to put in
