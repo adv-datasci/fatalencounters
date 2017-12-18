@@ -39,6 +39,12 @@ cleantable$long<-jitter(cleantable$long)
 
 function(input, output, session) {
   
+  output$ex_out <- renderPrint({
+    str(sapply(sprintf('e%d', 0:7), function(id) {
+      input[[id]]
+    }, simplify = FALSE))
+  })
+  
   ## Interactive Map ###########################################
   
   # Create the map
@@ -83,22 +89,22 @@ function(input, output, session) {
             border = 'white')
   })
   
-  output$plot2 <- renderPlot({
-    # If no zipcodes are in view, don't plot
-    if (nrow(zipsInBounds()) == 0)
-      return(NULL)
-    
-    barplot(prop.table(table(zipsInBounds()$cause)),
-            #breaks = centileBreaks
-            main = "Cause of death",
-            ylab = "Percentage",
-            cex.names=0.8,
-            ylim = c(0,1),
-            xlab = "Cause of death",
-            #xlim = range(allzips$centile),
-            col = '#00DD00',
-            border = 'white')
-  })
+  # output$plot2 <- renderPlot({
+  #   # If no zipcodes are in view, don't plot
+  #   if (nrow(zipsInBounds()) == 0)
+  #     return(NULL)
+  #   
+  #   barplot(prop.table(table(zipsInBounds()$cause)),
+  #           #breaks = centileBreaks
+  #           main = "Cause of death",
+  #           ylab = "Percentage",
+  #           cex.names=0.8,
+  #           ylim = c(0,1),
+  #           xlab = "Cause of death",
+  #           #xlim = range(allzips$centile),
+  #           col = '#00DD00',
+  #           border = 'white')
+  # })
   
   # This observer is responsible for maintaining the circles and legend,
   # according to the variables the user has chosen to map to color and size.
@@ -111,27 +117,33 @@ function(input, output, session) {
     #If you want to specify specific colors instead of palette, need to draw
     #map with
     
+    #custom_palette <-trimws(c("#8c510a ", "#d8b365 ", "#f6e8c3 ", "#c7eae5 ", "#5ab4ac ", "#01665e "))
+    
     if (colorBy == "race") {
       colorData <- factor(cleantable$race)
-      pal <- colorFactor("viridis", colorData)
+      pal <- colorFactor(palette = "Dark2", colorData)
       
       #Change this to specify each race as a more intuitive color?
       #pal <- c("black","white","yellow","brown","red", "orange", "green")
     } else if (colorBy == "cause") {
       colorData <- factor(cleantable$cause)
-      pal <- colorFactor("viridis", colorData)
+      pal <- colorFactor("Dark2", colorData)
       
     } else if (colorBy == "sex") {
       colorData <- factor(cleantable$sex)
-      pal <- colorFactor("viridis", colorData)
+      pal <- colorFactor("Dark2", colorData)
       
     } else if (colorBy == "age") {
-      colorData <- factor(cleantable$agerng)
-      
-      #TODO: get the age groups in order
-      # sfactors<-sort(unique(factor(cleantable$agerng)))
-      # factors
-      # facordered<-colorData[order(nchar(colorData), colorData)]
+      colorData <- factor(cleantable$agerng, 
+                          levels<-
+                            c("< 1 year","1 - 4 years", "5 - 9 years",
+                              "10 - 14 years","15 - 19 years",
+                              "20 - 24 years","25 - 34 years",
+                              "35 - 44 years","45 - 54 years",
+                              "55 - 64 years","65 - 74 years",
+                              "75 - 84 years","85+ years"
+                            )
+                          )
 
       pal <- colorFactor("viridis", colorData)
     }
@@ -146,32 +158,16 @@ function(input, output, session) {
                 layerId="colorLegend")
   })
   
-  # allzips <- readRDS(file.path("data","raw_data","superzip.rds"))
-  # allzips$latitude <- jitter(allzips$latitude)
-  # allzips$longitude <- jitter(allzips$longitude)
-  # allzips$college <- allzips$college * 100
-  # allzips$zipcode <- formatC(allzips$zipcode, width=5, format="d", flag="0")
-  # row.names(allzips) <- allzips$zipcode
-  
   showZipcodePopup <- function(name, lat, lng) {
    selectedZip <- cleantable[cleantable$name == name,]
         content <- as.character(tagList(
-      #tags$h4("Name:", selectedZip$name),
       tags$strong("Name:", selectedZip$name),tags$br(),
-      # tags$strong(HTML(sprintf("%s, %s %s",
-      #                          selectedZip$city, selectedZip$state, selectedZip$zipcode
-      # ))), tags$br(),
       sprintf("%s, %s %s",
                                 selectedZip$city, selectedZip$state, selectedZip$zipcode
        ), tags$br(),
       sprintf("Sex: %s", selectedZip$sex), tags$br(),
       sprintf("Age: %s", selectedZip$age), tags$br(),
       sprintf("Race: %s", selectedZip$race), tags$br(),
-      # sprintf("ClickID: %s", name), tags$br(),
-      # sprintf("DatasetLat: %s", selectedZip$lat[1]), tags$br(),
-      # sprintf("Lat: %s", lat), tags$br(),
-      # sprintf("DatasetLong: %s", selectedZip$long[1]), tags$br(),
-      # sprintf("Long: %s", lng), tags$br(),
       sprintf("Cause of death: %s", selectedZip$cause)
     ))
     leafletProxy("map") %>% addPopups(lng, lat, content, layerId = name)
@@ -180,7 +176,6 @@ function(input, output, session) {
   # When map is clicked, show a popup with city info
   observe({
     leafletProxy("map") %>% clearPopups()
-    #event <- input$map_shape_click
     event <- input$map_marker_click
     if (is.null(event))
       return()
@@ -193,8 +188,6 @@ function(input, output, session) {
   ############ Heat map ###############
   
   # Merge spatial df with downloaded ddata.
-  #  leafmap <- merge(us.map, county_dat, by=c("GEOID"))
-  
   leafmap <-readRDS(file.path("data","processed_data","heatmap_data.RDS"))
   
   # Format popup data for leaflet map.
@@ -266,8 +259,6 @@ function(input, output, session) {
   output$ziptable <- DT::renderDataTable({
     df <- cleantable %>%
       filter(
-        #Score >= input$minScore,
-        #Score <= input$maxScore,
         is.null(input$states) | state %in% input$states,
         is.null(input$cities) | city %in% input$cities,
         is.null(input$zipcodes) | zipcode %in% input$zipcodes

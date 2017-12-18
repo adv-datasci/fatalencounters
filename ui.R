@@ -9,6 +9,13 @@ library(spatial)
 #12/5:
 # Deleted some unnecessary comments
 
+#12/17L
+# Fixed order of factors
+# Updated UI to allow user to choose which demographics
+#           to put on the map (not done)
+# Updated UI to allow user to choose what variable to put in
+#           one histogram (not done)
+
 vars <- c(
   "Race" = "race",
   "Sex" = "sex",
@@ -40,7 +47,15 @@ navbarPage("Fatal Encounters", id="nav",
 
                                       #Various icon inputs
                                       selectInput("color", "Color", vars),
-                                      #selectInput("size", "Size", vars, selected = "adultpop"),
+                                      #selectInput("Histogram", "Size", vars, selected = "adultpop"),
+                                      
+                                      selectizeInput(
+                                        'e2',
+                                        'Select values to display on map',
+                                        choices = state.name, multiple = TRUE
+                                      ),
+                                      
+                                      selectInput("hist", "Histogram variable", vars, selected = "adultpop"),
                                       conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
                                                        # Only prompt for threshold when coloring or sizing by superzip
                                                        numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)
@@ -50,8 +65,9 @@ navbarPage("Fatal Encounters", id="nav",
                                       #plotOutput("histCentile", height = 200),
                                       #plotOutput("scatterCollegeIncome", height = 250)
 
-                                      plotOutput("plot1", height = 250),
-                                      plotOutput("plot2", height = 250)
+                                      #plotOutput("plot1", height = 250),
+                                      #plotOutput("plot2", height = 250)
+                                      plotOutput("plot1", height = 300)
                         ),
 
                         tags$div(id="cite",
