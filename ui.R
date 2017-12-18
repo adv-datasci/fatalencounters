@@ -20,12 +20,28 @@ vars <- c(
   "Race" = "race",
   "Sex" = "sex",
   "Age" = "age",
-  "Cause of death" = "cause"
+  "Cause of death" = "cause",
+  "Year" = "year"
+)
+
+rrraces <- c(
+  "None" = "pminusdratio",
+  "Black" = "blackrr",
+  "Hispanic" = "hisprr",
+  "Native" = "nativerr",
+  "Asian" = "asianrr"
 )
 
 navbarPage("Fatal Encounters", id="nav",
 
-           tabPanel("Interactive map",
+           tabPanel("Intro",
+                   fluidPage(
+                       div(id = "about", class = "card",  
+                       includeMarkdown("./about.Rmd")
+                       )
+                   )
+           ),
+           tabPanel("Deaths",
                     div(class="outer",
 
                         tags$head(
@@ -43,10 +59,10 @@ navbarPage("Fatal Encounters", id="nav",
                                       width = 330, height = "auto",
 
                                       #Title of the sidebar
-                                      h2("Map explorer"),
+                                      h3("Mapping Individual Deaths"),
 
                                       #Various icon inputs
-                                      selectInput("color", "Color", vars),
+                                      selectInput("color", "Color", vars, selected = "race"),
                                       #selectInput("Histogram", "Size", vars, selected = "adultpop"),
                                       
                                       selectizeInput(
@@ -67,7 +83,7 @@ navbarPage("Fatal Encounters", id="nav",
 
                                       #plotOutput("plot1", height = 250),
                                       #plotOutput("plot2", height = 250)
-                                      plotOutput("plot1", height = 300)
+                                      plotOutput("plot1", height = 400)
                         ),
 
                         tags$div(id="cite",
@@ -75,7 +91,35 @@ navbarPage("Fatal Encounters", id="nav",
                         )
                     )
            ),
-           tabPanel("Heat map",
+           tabPanel("Risk Map",
+                    div(class="outer",
+                        tags$head(
+                          # Include our custom CSS
+                          includeCSS("styles.css"),
+                          includeScript("gomap.js")
+                        ),
+                        
+                        # If not using custom CSS, set height of leafletOutput to a number instead of percent
+                        leafletOutput("heatmap", width="100%", height="100%"),
+                        
+                        # Shiny versions prior to 0.11 should use class = "modal" instead.
+                        absolutePanel(id = "controls2", class = "panel panel-default", fixed = TRUE,
+                                      draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+                                      width = 330, height = "auto",
+                                      
+                                      #Title of the sidebar
+                                      h3("Risk Map"),
+                                      
+                                      # RR selector
+                                      selectInput("rr", "Relative Risk by Race", rrraces, selected = "None")
+                        ),
+                        
+                        tags$div(id="cite",
+                                 'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
+                        )
+                    )
+           ),
+                    
 #                    div(class="outer",
 #                        tags$head(
 #                          # Include our custom CSS
@@ -84,8 +128,8 @@ navbarPage("Fatal Encounters", id="nav",
 #                        ),
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
 #                        leafletOutput("heatmap", width="100%", height="100%")
-                          leafletOutput("heatmap", width=1000, height=1000)
-                    ),
+#                          leafletOutput("heatmap", width=1000, height=1000)
+#                    ),
 
            ## Data Explorer ###########################################
 

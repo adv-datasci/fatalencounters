@@ -1,0 +1,21 @@
+---
+title: "about"
+author: "Kenneth Morales"
+date: "December 17, 2017"
+output: html_document
+---
+
+![FatalEncounters](https://www.spreadshirt.com/image-server/v1/mp/designs/12305107,width=178,height=178/police-officer-silhouette.png "Image")
+
+> *"The nation’s leading law enforcement agency [FBI] collects vast amounts of information on crime nationwide, but missing from this clearinghouse are statistics on where, how often, and under what circumstances police use deadly force. In fact, no one anywhere comprehensively tracks the most significant act police can do in the line of duty: take a life,"* Las Vegas Review-Journal in its series Deadly Force (Nov. 28, 2011)
+
+The dataset used is from [Fatal Encounters](fatalencounters.org). Their project has attempted to collect as many possible records of police-involved deaths since the year 2000.
+
+This project was created for the [Advanced Data Science II](http://jtleek.com/advdatasci/) class at the Johns Hopkins Bloomberg School of Public Health.
+
+#### Contact:
+
+Kenneth Morales: [GitHub](https://github.com/blacksheepboy) [Email](mailto:ken.b.morales@gmail.com)
+
+Mysterious Contributor
+

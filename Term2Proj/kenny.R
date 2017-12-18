@@ -125,3 +125,35 @@ ggplot(data = fatal, aes(x = easy)) + geom_bar()
 
 fataleasy <- subset(fatal, easy == 1)
 fatalnoteasy <- subset(fatal, easy == 0)
+
+#####
+##### Adjustments to the cleantable dataset
+##### 
+
+# To save file
+# saveRDS(cleantable, file = "data/processed_data/clean_fatal_dataset.RDS")
+
+# Clean race
+cleantable$race[cleantable$race == "Native American"] <- "Native"
+cleantable$race[cleantable$race == "Middle Eastern"] <- "White"
+cleantable$race[cleantable$race == "Hispanic/Latino"] <- "Hispanic"
+cleantable$race[cleantable$race == "European-American/White"] <- "White"
+cleantable$race[cleantable$race == "Asian/Pacific Islander"] <- "Asian"
+cleantable$race[cleantable$race == "African-American/Black"] <- "Black"
+
+# Clean cause
+cleantable$cause[cleantable$cause == "Undetermined"] <- "Other"
+cleantable$cause[cleantable$cause == "Stabbed"] <- "Other"
+cleantable$cause[cleantable$cause == "Fell from a height"] <- "Other"
+cleantable$cause[cleantable$cause == "Drug overdose"] <- "Other"
+cleantable$cause[cleantable$cause == "Drowned"] <- "Other"
+cleantable$cause[cleantable$cause == "Chemical agent/Pepper spray"] <- "Other"
+cleantable$cause[cleantable$cause == "Burned/Smoke inhalation"] <- "Other"
+cleantable$cause[cleantable$cause == "Beaten/Bludgeoned with instrument"] <- "Other"
+cleantable$cause[cleantable$cause == ""] <- "Other"
+cleantable$cause[cleantable$cause == "Asphyxiated/Restrained"] <- "Suffocated"
+cleantable$cause[cleantable$cause == "Suffocated"] <- "Other"
+cleantable$cause[cleantable$cause == "Medical emergency"] <- "Other"
+
+# more cleaning
+racepops$race[racepops$race == "Black or African-American"] <- "Black"

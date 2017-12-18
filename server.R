@@ -4,6 +4,7 @@ library(rgdal)
 library(maptools)
 
 library(leaflet)
+library(leaflet.extras)
 library(RColorBrewer)
 library(scales)
 library(lattice)
@@ -77,16 +78,56 @@ function(input, output, session) {
     # If no zipcodes are in view, don't plot
     if (nrow(zipsInBounds()) == 0)
       return(NULL)
+    if (input$hist == "race") {
+      barplot(prop.table(table(zipsInBounds()$race)),
+              main = "Racial demographics of decedents",
+              ylab = "Race",
+              cex.names=0.8,
+              horiz = TRUE,
+              xlab = "Proportion",
+              col = '#00DD00',
+              border = 'white')
+    } else if (input$hist == "sex") {
+      barplot(prop.table(table(zipsInBounds()$sex)),
+              #breaks = centileBreaks,
+              main = "Sex of decedents",
+              ylab = "Percentage",
+              cex.names=0.8,
+              ylim = c(0,1),
+              xlab = "Sex",
+              col = '#00DD00',
+              border = 'white')
+    } else if (input$hist == "age") {
+      barplot(prop.table(table(zipsInBounds()$agerng)),
+              #breaks = centileBreaks,
+              main = "Age profiles of decedents",
+              horiz = TRUE,
+              ylab = "Age groups",
+              cex.names=0.8,
+              xlab = "Proportion",
+              col = '#00DD00',
+              border = 'white')
+    } else if (input$hist == "cause") {
+      barplot(prop.table(table(zipsInBounds()$cause)),
+              #breaks = centileBreaks,
+              main = "Cause of death",
+              horiz= TRUE, 
+              ylab = "Cause",
+              cex.names=0.8,
+              xlab = "Proportion",
+              col = '#00DD00',
+              border = 'white')
+    } else if (input$hist == "year") {
+      barplot(prop.table(table(zipsInBounds()$year)),
+              #breaks = centileBreaks,
+              main = "Year breakdown of deaths",
+              ylab = "Percentage",
+              cex.names=0.8,
+              xlab = "Year",
+              col = '#00DD00',
+              border = 'white')
+    }
     
-    barplot(prop.table(table(zipsInBounds()$race)),
-            #breaks = centileBreaks,
-            main = "Racial demographics of fatal encounters",
-            ylab = "Percentage",
-            cex.names=0.8,
-            ylim = c(0,1),
-            xlab = "Racial groups",
-            col = '#00DD00',
-            border = 'white')
   })
   
   # output$plot2 <- renderPlot({
@@ -146,6 +187,11 @@ function(input, output, session) {
                           )
 
       pal <- colorFactor("viridis", colorData)
+    
+    } else if (colorBy == "year") {
+      colorData <- factor(cleantable$year)
+      pal <- colorFactor("Dark2", colorData)
+      
     }
     
     
@@ -188,27 +234,61 @@ function(input, output, session) {
   ############ Heat map ###############
   
   # Merge spatial df with downloaded ddata.
-  leafmap <-readRDS(file.path("data","processed_data","heatmap_data.RDS"))
+  leafmap <-readRDS(file.path("data","processed_data","heatmap_data2.RDS"))
   
-  # Format popup data for leaflet map.
-  popup_dat <- paste0("<strong>County: </strong>",
-                      leafmap$NAME,
-                      "<br><strong>Value: </strong>",
-                      leafmap$pminusdratio)
+  # rrcolorData <- leafmap$pminusdratio
+  # pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
   
-  pal <- colorQuantile("YlOrRd", NULL, n = 9)
+  binz <- c(0, 0.5, 0.99, 1.5, 2, 4, 8, 16, Inf)
   
+  observe({
+    rrBy <- input$rr
+    
+    if (rrBy == "pminusdratio") {
+      rrcolorData <- leafmap$pminusdratio
+      pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
+    } else if (rrBy == "blackrr") {
+      rrcolorData <- leafmap$blackrr
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+    } else if (rrBy == "hisprr") {
+      rrcolorData <- leafmap$hisprr
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+    } else if (rrBy == "nativerr") {
+      rrcolorData <- leafmap$nativerr
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+    } else if (rrBy == "asianrr") {
+      rrcolorData <- leafmap$asianrr
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+    } 
+  
+    # Format popup data for leaflet map.
+    popup_dat <- paste0("<strong>County: </strong>",
+                        leafmap$NAME,
+                        "<br><strong>Risk: </strong>",
+                        round(rrcolorData, 2))
+    
   # Create the map
   output$heatmap <- renderLeaflet({
     # Render final map in leaflet.
     leaflet(data = leafmap) %>%
       addTiles() %>%
-      addPolygons(fillColor = ~pal(unique(pminusdratio)),
+      addPolygons(fillColor = ~pal(rrcolorData),
                   fillOpacity = 0.8,
                   color = "#BDBDC3",
                   weight = 1,
-                  popup = popup_dat) %>%
-      setView(lng = -93.85, lat = 37.45, zoom = 4)
+                  popup = popup_dat,
+                  label = ~NAME,
+                  group = 'counties') %>%
+      setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
+      addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Relative Risk of Fatal Encounter',
+                layerId="riskLegend") %>%
+      addSearchFeatures(
+        targetGroups  = 'counties',
+        options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
+      addResetMapButton() %>%
+      addControl("<P><B>Rate of police-involved death</B> per 100,000 population</P><P>Since the year 2000</P><P>Search by county name</P>",
+                 position='bottomright')
+    })
   })
   
   ###########################
