@@ -134,7 +134,7 @@ fatalnoteasy <- subset(fatal, easy == 0)
 # saveRDS(cleantable, file = "data/processed_data/clean_fatal_dataset.RDS")
 
 # Clean race
-cleantable$race[cleantable$race == "Native American"] <- "Native"
+cleantable$race[cleantable$race == "Native American/Alaskan"] <- "Native"
 cleantable$race[cleantable$race == "Middle Eastern"] <- "White"
 cleantable$race[cleantable$race == "Hispanic/Latino"] <- "Hispanic"
 cleantable$race[cleantable$race == "European-American/White"] <- "White"
@@ -154,6 +154,12 @@ cleantable$cause[cleantable$cause == ""] <- "Other"
 cleantable$cause[cleantable$cause == "Asphyxiated/Restrained"] <- "Suffocated"
 cleantable$cause[cleantable$cause == "Suffocated"] <- "Other"
 cleantable$cause[cleantable$cause == "Medical emergency"] <- "Other"
+
+# clean age
+cleantable$agerng <- str_replace(cleantable$agerng, " years", "")
+cleantable$agerng <- str_replace(cleantable$agerng, " year", "")
+cleantable$agerng[cleantable$agerng == "1 - 4"] <- "01 - 04"
+cleantable$agerng[cleantable$agerng == "5 - 9"] <- "05 - 09"
 
 # more cleaning
 racepops$race[racepops$race == "Black or African-American"] <- "Black"
