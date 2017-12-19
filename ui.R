@@ -66,13 +66,13 @@ navbarPage("Fatal Encounters", id="nav",
                                       
                                       #Various icon inputs
                                       selectInput("color", "Demographic selector", vars, selected = NULL),
-                                      #selectInput("Histogram", "Size", vars, selected = "adultpop"),
                                       
-                                      selectizeInput(
-                                        'selectize',
-                                        'Select values to display on map',
-                                        choices = NULL, multiple = TRUE ##############
-                                      ),
+                                      #TO DO: Fix server.R so that this selector can work
+                                      # selectizeInput(
+                                      #   'selectize',
+                                      #   'Select values to display on map',
+                                      #   choices = NULL, multiple = TRUE ##############
+                                      # ),
                                       
                                       selectInput("hist", "Histogram variable", vars, selected = "adultpop"),
                                       conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
