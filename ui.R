@@ -86,7 +86,7 @@ navbarPage("Fatal Encounters", id="nav",
                                       
                                       #plotOutput("plot1", height = 250),
                                       #plotOutput("plot2", height = 250)
-                                      plotOutput("plot1", height = 500)
+                                      plotOutput("plot1", height = 400)
                         ),
                         
                         tags$div(id="cite",
