@@ -28,12 +28,12 @@ library(leaflet.extras)
 #12/9
 #add pop-ups with victim information
 
-#12/17K
+#12/17
 # Finished UI to allow user to choose what variable to put in
 #           one histogram
 #Added heatmap, edited data explorer, added intro
 
-#12/18L
+#12/18
 # Finished UI to allow user to choose which demographics
 #           to put on the map
 
@@ -46,11 +46,9 @@ cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset.RDS"
 
 #There are multiple shootings at the same zip codes, so add
 #random noise to ensure that the markers don't overlap
-cleantable$lat<-jitter(cleantable$lat)
-cleantable$long<-jitter(cleantable$long) 
 
 #Copy to modify when user specifies certain demographics
-cleantable_unmodified<-cleantable
+#cleantable_unmodified<-cleantable
 
 function(input, output, session) {
   ## Interactive Map ###########################################

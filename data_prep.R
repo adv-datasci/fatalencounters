@@ -45,7 +45,31 @@ cleantable <- allzips %>%
 #   2) data explorer in tab 3
 cleantable <- inner_join(cleantable,fataleasy,by = c("zipcode" = "zipcode"))
 
-saveRDS(cleantable, file.path("data","processed_data","clean_fatal_dataset.RDS"))
+#Select only variables of interest
+cleantable2 <- cleantable %>%
+  select(zipcode,
+    lat,
+    long,
+    name,
+    age,
+    sex,
+    race,
+    url_name = URL.of.image.of.deceased,
+    date,
+    city,
+    state,
+    county,
+    agency,
+    cause,
+    description = A.brief.description.of.the.circumstances.surrounding.the.death,
+    official_description = Official.disposition.of.death..justified.or.other.,
+    news_link = Link.to.news.article.or.photo.of.official.document,
+    mental_ill,
+    year,
+    agerng
+  )
+
+saveRDS(cleantable2, file.path("data","processed_data","clean_fatal_dataset.RDS"))
 
 temp0<-cleantable %>%
   select(name, county, state)

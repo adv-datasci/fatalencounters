@@ -9,12 +9,15 @@ library(spatial)
 #12/5:
 # Deleted some unnecessary comments
 
-#12/17L
+#12/17
 # Fixed order of age factors
 # Updated UI to allow user to choose which demographics
 #           to put on the map (not done)
 # Updated UI to allow user to choose what variable to put in
 #           one histogram (not done)
+
+#12/19
+# Edited data_prep.R to make cleantable smaller
 
 vars <- c(
   "Race" = "race",
@@ -62,7 +65,7 @@ navbarPage("Fatal Encounters", id="nav",
                                       h3("Mapping Individual Deaths"),
                                       
                                       #Various icon inputs
-                                      selectInput("color", "Demographic selector", vars, selected = "race"),
+                                      selectInput("color", "Demographic selector", vars, selected = NULL),
                                       #selectInput("Histogram", "Size", vars, selected = "adultpop"),
                                       
                                       selectizeInput(
@@ -141,31 +144,26 @@ navbarPage("Fatal Encounters", id="nav",
            
            ## Data Explorer ###########################################
            
-           tabPanel("Data Explorer",
-                    fluidRow(
-                      column(3,
-                             selectInput("states", "States", c("All states"="", structure(state.abb, names=state.name), "Washington, DC"="DC"), multiple=TRUE)
-                      ),
-                      column(3,
-                             conditionalPanel("input.states",
-                                              selectInput("cities", "Cities", c("All cities"=""), multiple=TRUE)
-                             )
-                      ),
-                      column(3,
-                             conditionalPanel("input.states",
-                                              selectInput("zipcodes", "Zipcodes", c("All zipcodes"=""), multiple=TRUE)
-                             )
-                      )
-                    ),
-                    fluidRow(
-                      column(1,
-                             numericInput("minScore", "Min score", min=0, max=100, value=0)
-                      ),
-                      column(1,
-                             numericInput("maxScore", "Max score", min=0, max=100, value=100)
-                      )
-                    ),
-                    hr(),
+           tabPanel("Data explorer",
+                    #TODO: State selector is broken and needs to be fixed
+                    
+                    # fluidRow(
+                    #   column(3,
+                    #          selectInput("states", "States", c("All states"="", structure(state.abb, names=state.name), "Washington, DC"="DC"), multiple=TRUE)
+                    #   ),
+                    #   column(3,
+                    #          conditionalPanel("input.states",
+                    #                           selectInput("cities", "Cities", c("All cities"=""), multiple=TRUE)
+                    #          )
+                    #   ),
+                    #   column(3,
+                    #          conditionalPanel("input.states",
+                    #                           selectInput("zipcodes", "Zipcodes", c("All zipcodes"=""), multiple=TRUE)
+                    #          )
+                    #   )
+                    # ),
+                    # hr(),
+                    
                     DT::dataTableOutput("ziptable")
            ),
            
