@@ -62,6 +62,14 @@ function(input, output, session) {
         urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
         attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
       ) %>%
+      addCircleMarkers(data = cleantable, ~long, ~lat, radius=3, layerId=~name,                       
+                        stroke=FALSE, fillOpacity=0.4, fillColor='#000000', label = ~name, group = 'person') %>%
+      addSearchFeatures(
+        targetGroups  = 'person',
+        options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
+      addResetMapButton() %>%
+      addControl("<P>You may search by a person's name.</P>",
+                 position='bottomright') %>% 
       setView(lng = -93.85, lat = 37.45, zoom = 4)
   })
   
@@ -265,7 +273,7 @@ function(input, output, session) {
       #leafletProxy("map") %>%
       clearShapes() %>%
       addCircleMarkers( ~long, ~lat, radius=3, layerId=~name,                       
-                        stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
+                        stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData), label = ~name, group = 'person') %>%
       addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
                 layerId="colorLegend")
   })
@@ -300,7 +308,7 @@ function(input, output, session) {
   ############ Heat map ###############
   
   # Merge spatial df with downloaded ddata.
-  leafmap <-readRDS(file.path("data","processed_data","heatmap_data2.RDS"))
+  leafmap <-readRDS(file.path("data","processed_data","heatmap_data3.RDS"))
   
   # rrcolorData <- leafmap$pminusdratio
   # pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
@@ -312,19 +320,19 @@ function(input, output, session) {
     
     if (rrBy == "pminusdratio") {
       rrcolorData <- leafmap$pminusdratio
-      pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
+      pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6, na.color = "transparent")
     } else if (rrBy == "blackrr") {
       rrcolorData <- leafmap$blackrr
-      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
     } else if (rrBy == "hisprr") {
       rrcolorData <- leafmap$hisprr
-      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
     } else if (rrBy == "nativerr") {
       rrcolorData <- leafmap$nativerr
-      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
     } else if (rrBy == "asianrr") {
       rrcolorData <- leafmap$asianrr
-      pal <- colorBin("YlOrRd", rrcolorData, bins = binz)
+      pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
     } 
     
     # Format popup data for leaflet map.
@@ -346,13 +354,13 @@ function(input, output, session) {
                     label = ~NAME,
                     group = 'counties') %>%
         setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
-        addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Relative Risk of Fatal Encounter',
+        addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Risk of Fatal Encounter',
                   layerId="riskLegend") %>%
         addSearchFeatures(
           targetGroups  = 'counties',
           options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
         addResetMapButton() %>%
-        addControl("<P><B>Rate of police-involved death</B> per 100,000 population</P><P>Since the year 2000</P><P>Search by county name</P>",
+        addControl("<P>Search by county name</P>",
                    position='bottomright')
     })
   })

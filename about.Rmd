@@ -11,11 +11,10 @@ output: html_document
 
 The dataset used is from [Fatal Encounters](fatalencounters.org). Their project has attempted to collect as many possible records of police-involved deaths since the year 2000.
 
-This project was created for the [Advanced Data Science II](http://jtleek.com/advdatasci/) class at the Johns Hopkins Bloomberg School of Public Health.
+#### Acknowledgements
+
+Many thanks for [Joe Cheng](https://github.com/jcheng5)'s Shiny framework and SuperZip, on which this project was built off of.
 
 #### Contact:
 
-Kenneth Morales: [GitHub](https://github.com/blacksheepboy) [Email](mailto:ken.b.morales@gmail.com)
-
-Mysterious Contributor
-
+Kenneth Morales: [GitHub](https://github.com/blacksheepboy) [Email](mailto:police.violence.visualization@gmail.com)

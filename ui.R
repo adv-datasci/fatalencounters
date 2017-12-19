@@ -26,10 +26,10 @@ vars <- c(
 
 rrraces <- c(
   "None" = "pminusdratio",
-  "Black" = "blackrr",
-  "Hispanic" = "hisprr",
-  "Native" = "nativerr",
-  "Asian" = "asianrr"
+  "Black vs. White" = "blackrr",
+  "Hispanic vs. White" = "hisprr",
+  "Native vs. White" = "nativerr",
+  "Asian vs. White" = "asianrr"
 )
 
 navbarPage("Fatal Encounters", id="nav",
@@ -62,7 +62,7 @@ navbarPage("Fatal Encounters", id="nav",
                                       h3("Mapping Individual Deaths"),
                                       
                                       #Various icon inputs
-                                      selectInput("color", "Color", vars, selected = "race"),
+                                      selectInput("color", "Demographic selector", vars, selected = "race"),
                                       #selectInput("Histogram", "Size", vars, selected = "adultpop"),
                                       
                                       selectizeInput(
@@ -103,16 +103,24 @@ navbarPage("Fatal Encounters", id="nav",
                         leafletOutput("heatmap", width="100%", height="100%"),
                         
                         # Shiny versions prior to 0.11 should use class = "modal" instead.
-                        absolutePanel(id = "controls2", class = "panel panel-default", fixed = TRUE,
+                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                                       draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
                                       width = 330, height = "auto",
                                       
-                                      #Title of the sidebar
+                                      # Title of the sidebar
                                       h3("Risk Map"),
                                       
+                                      # Descriptive text
+                                      h5("Initial display is overall risk from 2000-2015, controlled for population."),
+                                      
                                       # RR selector
-                                      selectInput("rr", "Relative Risk by Race", rrraces, selected = "None")
-                        ),
+                                      selectInput("rr", "Relative Risk by Race", rrraces, selected = "None"),
+                                      
+                                      # Descriptive text
+                                      h5("Relative risks are computed using white race as the comparison."),
+                                      h5("For counties to display data, data must be available for both race groups.")
+                                    
+                                      ),
                         
                         tags$div(id="cite",
                                  'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
@@ -133,7 +141,7 @@ navbarPage("Fatal Encounters", id="nav",
            
            ## Data Explorer ###########################################
            
-           tabPanel("Data explorer",
+           tabPanel("Data Explorer",
                     fluidRow(
                       column(3,
                              selectInput("states", "States", c("All states"="", structure(state.abb, names=state.name), "Washington, DC"="DC"), multiple=TRUE)
