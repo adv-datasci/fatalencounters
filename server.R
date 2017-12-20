@@ -419,6 +419,10 @@ function(input, output, session) {
     df<-df %>%
       mutate(source = paste("<a href='", news_link,"'>Link</a>",sep=""))
     
+  #TODO: Allows user to go to selected row on the interactive map
+  #  Needs to be fixed
+  #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
+    
     df<-df %>%
       select(
         name,
