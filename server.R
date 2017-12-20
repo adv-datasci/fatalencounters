@@ -436,7 +436,7 @@ function(input, output, session) {
         county,
         agency,
         cause,
-        description,
+        circumstances_surrounding_death = description,
         official_description,
         source,
         mental_ill,
