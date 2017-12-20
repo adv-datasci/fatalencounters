@@ -407,7 +407,6 @@ function(input, output, session) {
       map %>% fitBounds(lng - dist, lat - dist, lng + dist, lat + dist)
     })
   })
-  
   output$ziptable <- DT::renderDataTable({
     df <- cleantable %>%
       filter(
@@ -415,13 +414,49 @@ function(input, output, session) {
         is.null(input$cities) | city %in% input$cities,
         is.null(input$zipcodes) | zipcode %in% input$zipcodes
       ) %>%
-      mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
+      mutate(img = paste("<img src='", url_name,"' height=", "'100'></img>",sep=""))
+    
+    df<-df %>%
+      mutate(source = paste("<a href='", news_link,"'>Link</a>",sep=""))
+    
+    df<-df %>%
+      select(
+        name,
+        img,
+        age,
+        sex,
+        race,
+        date,
+        city, 
+        state,
+        county,
+        agency,
+        cause,
+        description,
+        official_description,
+        source,
+        mental_ill,
+        year
+      )
+
+  
+  #TODO: Fix this line; supposed to go to the relevant dot on the map
+      #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
     action <- DT::dataTableAjax(session, df)
     
     DT::datatable(df, options = list(ajax = list(url = action)), escape = FALSE)
-  })
+  }
+  #TODO: Has no effect, but should make description column wider
+  #,
+  # options = list(
+  #   autoWidth = TRUE,
+  #   scrollX=TRUE,
+  #   columnDefs = list(list(width = '500px', targets = 12))
+  # )
+  )
   
 }
+
 
 
 
