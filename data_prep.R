@@ -21,7 +21,7 @@ row.names(allzips) <- allzips$zipcode
 #Does server or ui use allzips?
 #No. But you need it to make cleantable here
 
-####### Final data sets ################
+####### Final (easy) data sets ################
 
 filepath<-file.path("data","raw_data","deaths_by_county.RDS")
 deaths_by_county<-readRDS(filepath)
@@ -31,7 +31,20 @@ fataleasy<-readRDS(filepath2)
 
 fataleasy$zipcode <-as.character(fataleasy$zipcode)
 
+# Repeat for not easy dataset
+fatalnoteasy$zipcode <-as.character(fatalnoteasy$zipcode)
+
 cleantable <- allzips %>%
+  select(
+    #city = city.x,
+    #state = state.x,
+    zipcode = zipcode,
+    lat = latitude,
+    long = longitude
+  )
+
+# Repeat for not easy dataset
+notezcleantable <- allzips %>%
   select(
     #city = city.x,
     #state = state.x,
@@ -44,6 +57,9 @@ cleantable <- allzips %>%
 #   1) interactive map in tab 1
 #   2) data explorer in tab 3
 cleantable <- inner_join(cleantable,fataleasy,by = c("zipcode" = "zipcode"))
+
+# Repeat not not ez dataset
+notezcleantable <- inner_join(notezcleantable,fatalnoteasy,by = c("zipcode" = "zipcode"))
 
 #Select only variables of interest
 cleantable2 <- cleantable %>%
@@ -69,7 +85,35 @@ cleantable2 <- cleantable %>%
     agerng
   )
 
+# Repeat for not ez
+
+notezcleantable2 <- notezcleantable %>%
+  select(zipcode,
+         lat,
+         long,
+         name,
+         age,
+         sex,
+         race,
+         url_name = URL.of.image.of.deceased,
+         date,
+         city,
+         state,
+         county,
+         agency,
+         cause,
+         description = A.brief.description.of.the.circumstances.surrounding.the.death,
+         official_description = Official.disposition.of.death..justified.or.other.,
+         news_link = Link.to.news.article.or.photo.of.official.document,
+         mental_ill,
+         year,
+         agerng
+  )
+
 saveRDS(cleantable2, file.path("data","processed_data","clean_fatal_dataset.RDS"))
+
+# repeat for not easy data
+saveRDS(notezcleantable2, file.path("data","processed_data","clean_fatal_notez_dataset.RDS"))
 
 temp0<-cleantable %>%
   select(name, county, state)

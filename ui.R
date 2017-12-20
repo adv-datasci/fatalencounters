@@ -18,6 +18,7 @@ library(spatial)
 
 #12/19
 # Edited data_prep.R to make cleantable smaller
+# Added back in "not easy" data from Fatal Encounters for individual deaths map
 
 vars <- c(
   "Race" = "race",

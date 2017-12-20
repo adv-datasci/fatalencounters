@@ -161,5 +161,50 @@ cleantable$agerng <- str_replace(cleantable$agerng, " year", "")
 cleantable$agerng[cleantable$agerng == "1 - 4"] <- "01 - 04"
 cleantable$agerng[cleantable$agerng == "5 - 9"] <- "05 - 09"
 
+###
+### Repeat for not ez dataset
+###
+
+notezcleantable$race[notezcleantable$race == "Native American/Alaskan"] <- "Native"
+notezcleantable$race[notezcleantable$race == "Middle Eastern"] <- "White"
+notezcleantable$race[notezcleantable$race == "Hispanic/Latino"] <- "Hispanic"
+notezcleantable$race[notezcleantable$race == "European-American/White"] <- "White"
+notezcleantable$race[notezcleantable$race == "Asian/Pacific Islander"] <- "Asian"
+notezcleantable$race[notezcleantable$race == "African-American/Black"] <- "Black"
+
+# Clean cause
+notezcleantable$cause[notezcleantable$cause == "Undetermined"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Stabbed"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Fell from a height"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Drug overdose"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Drowned"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Chemical agent/Pepper spray"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Burned/Smoke inhalation"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Beaten/Bludgeoned with instrument"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == ""] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Asphyxiated/Restrained"] <- "Suffocated"
+notezcleantable$cause[notezcleantable$cause == "Suffocated"] <- "Other"
+notezcleantable$cause[notezcleantable$cause == "Medical emergency"] <- "Other"
+
+# clean age
+notezcleantable$agerng <- str_replace(notezcleantable$agerng, " years", "")
+notezcleantable$agerng <- str_replace(notezcleantable$agerng, " year", "")
+notezcleantable$agerng[notezcleantable$agerng == "1 - 4"] <- "01 - 04"
+notezcleantable$agerng[notezcleantable$agerng == "5 - 9"] <- "05 - 09"
+
+# try setting unknown = NA
+notezcleantable$sex[notezcleantable$sex == "Unknown"] <- NA
+notezcleantable$race[notezcleantable$race == "Unknown"] <- NA
+notezcleantable$agerng[notezcleantable$agerng == "Unknown"] <- NA
+
+### Join EZ and not EZ tables
+cleantable2 <- rbind(cleantable, notezcleantable, stringsAsFactors = FALSE)
+
+# SAVE as separate dataset 
+
+saveRDS(cleantable2, file = "data/processed_data/clean_fatal_dataset2.RDS")
+
+
+
 # more cleaning
 racepops$race[racepops$race == "Black or African-American"] <- "Black"

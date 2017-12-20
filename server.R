@@ -42,7 +42,7 @@ library(leaflet.extras)
 #setwd("your/directory/here")
 
 # Read in the data
-cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset.RDS"))
+cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset2.RDS"))
 
 #There are multiple shootings at the same zip codes, so add
 #random noise to ensure that the markers don't overlap
