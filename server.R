@@ -1,3 +1,6 @@
+
+# Setup -------------------------------------------------------------------
+
 library(sp)
 library(rgeos)
 library(rgdal)
@@ -7,48 +10,7 @@ library(RColorBrewer)
 library(scales)
 library(lattice)
 library(dplyr)
-
-#Must be installed from github
-#devtools::install_github('bhaskarvk/leaflet.extras')
 library(leaflet.extras)
-
-#EDITS
-#11/26:
-#delete data explorer
-#delete size changer of points
-
-#12/1:
-#add back data explorer
-#add in tab for heat map
-#add in additional packages for heat map
-
-#12/3
-#incorporate cleaned datasest
-
-#12/9
-#add pop-ups with victim information
-
-#12/17
-# Finished UI to allow user to choose what variable to put in
-#           one histogram
-#Added heatmap, edited data explorer, added intro
-
-#12/18
-# Finished UI to allow user to choose which demographics
-#           to put on the map
-
-########## Set working directory #####
-
-#setwd("your/directory/here")
-
-# Read in the data
-cleantable <-readRDS(file.path("data","processed_data","clean_fatal_dataset2.RDS"))
-
-#There are multiple shootings at the same zip codes, so add
-#random noise to ensure that the markers don't overlap
-
-#Copy to modify when user specifies certain demographics
-#cleantable_unmodified<-cleantable
 
 function(input, output, session) {
   ## Interactive Map ###########################################
@@ -60,8 +22,16 @@ function(input, output, session) {
         urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
         attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
       ) %>%
-      addCircleMarkers(data = cleantable, ~long, ~lat, radius=3, layerId=~name,                       
-                        stroke=FALSE, fillOpacity=0.4, fillColor='#000000', label = ~name, group = 'person') %>%
+      addCircleMarkers(data = fatal,
+                       ~lon,
+                       ~lat,
+                       radius=3,
+                       layerId=~name,                       
+                       stroke=FALSE, 
+                       fillOpacity=0.4, 
+                       fillColor='#000000',
+                       label = ~name, 
+                       group = 'person') %>%
       addSearchFeatures(
         targetGroups  = 'person',
         options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
@@ -76,14 +46,14 @@ function(input, output, session) {
   
   zipsInBounds <- reactive({
     if (is.null(input$map_bounds))
-      return(cleantable[FALSE,])
+      return(fatal[FALSE,])
     bounds <- input$map_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
     
-    subset(cleantable,
+    subset(fatal,
            lat >= latRng[1] & lat <= latRng[2] &
-             long >= lngRng[1] & long <= lngRng[2])
+             lon >= lngRng[1] & lon <= lngRng[2])
   })
   
   #################
@@ -100,11 +70,11 @@ function(input, output, session) {
     colorBy <- input$color
     if (colorBy == "race") {
       updateSelectizeInput(session, "selectize",
-                           choices=levels(factor(cleantable$race)), selected=choices[selectionIndex], 
+                           choices=levels(factor(fatal$race)), selected=choices[selectionIndex], 
                            server = TRUE)
     } else if (colorBy == "sex") {
       updateSelectizeInput(session, "selectize",
-                           choices=levels(factor(cleantable$sex)), selected=choices[selectionIndex], 
+                           choices=levels(factor(fatal$sex)), selected=choices[selectionIndex], 
                            server = TRUE)
     } else if (colorBy == "age") {
       updateSelectizeInput(session, "selectize",
@@ -119,7 +89,7 @@ function(input, output, session) {
                            server = TRUE)
     } else if (colorBy == "cause") {
       updateSelectizeInput(session, "selectize",
-                           choices=levels(factor(cleantable$cause)), selected=choices[selectionIndex], 
+                           choices=levels(factor(fatal$cause)), selected=choices[selectionIndex], 
                            server = TRUE)
     }
   })
@@ -129,9 +99,9 @@ function(input, output, session) {
     selected<-input$selectize
     
     if (is.na(selected)){
-      return(cleantable)
+      return(fatal)
     } else {
-      a <- subset(cleantable, category == selected)
+      a <- subset(fatal, category == selected)
       return(a)
     }
   })
@@ -231,21 +201,21 @@ function(input, output, session) {
     #custom_palette <-trimws(c("#8c510a ", "#d8b365 ", "#f6e8c3 ", "#c7eae5 ", "#5ab4ac ", "#01665e "))
     
     if (colorBy == "race") {
-      colorData <- factor(cleantable$race)
+      colorData <- factor(fatal$race)
       pal <- colorFactor(palette = "Dark2", colorData)
       
       #Change this to specify each race as a more intuitive color?
       #pal <- c("black","white","yellow","brown","red", "orange", "green")
     } else if (colorBy == "cause") {
-      colorData <- factor(cleantable$cause)
+      colorData <- factor(fatal$cause)
       pal <- colorFactor("Dark2", colorData)
       
     } else if (colorBy == "sex") {
-      colorData <- factor(cleantable$sex)
+      colorData <- factor(fatal$sex)
       pal <- colorFactor("Dark2", colorData)
       
     } else if (colorBy == "age") {
-      colorData <- factor(cleantable$agerng, 
+      colorData <- factor(fatal$agerng, 
                           levels<-
                             c("< 1 year","1 - 4 years", "5 - 9 years",
                               "10 - 14 years","15 - 19 years",
@@ -259,7 +229,7 @@ function(input, output, session) {
       pal <- colorFactor("viridis", colorData)
       
     } else if (colorBy == "year") {
-      colorData <- factor(cleantable$year)
+      colorData <- factor(fatal$year)
       pal <- colorFactor("Dark2", colorData)
       
     }
@@ -267,17 +237,17 @@ function(input, output, session) {
     #output$table1 <- renderTable(df_subset())
     
     #Draws the map and adds the legend
-    leafletProxy("map", data = cleantable) %>%
+    leafletProxy("map", data = fatal) %>%
       #leafletProxy("map") %>%
       clearShapes() %>%
-      addCircleMarkers( ~long, ~lat, radius=3, layerId=~name,                       
+      addCircleMarkers( ~lon, ~lat, radius=3, layerId=~name,                       
                         stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData), label = ~name, group = 'person') %>%
       addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
                 layerId="colorLegend")
   })
   
   showZipcodePopup <- function(name, lat, lng) {
-    selectedZip <- cleantable[cleantable$name == name,]
+    selectedZip <- fatal[fatal$name == name,]
     content <- as.character(tagList(
       tags$strong("Name:", selectedZip$name),tags$br(),
       sprintf("%s, %s %s",

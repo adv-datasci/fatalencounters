@@ -1,24 +1,9 @@
+### kbmorales
+### UI for app
+### kbmorales@protonmail.com
+
 library(leaflet)
 library(spatial)
-
-#EDITS:
-#11/26:
-# Delete code for data explorer tab
-# Change names of variables
-
-#12/5:
-# Deleted some unnecessary comments
-
-#12/17
-# Fixed order of age factors
-# Updated UI to allow user to choose which demographics
-#           to put on the map (not done)
-# Updated UI to allow user to choose what variable to put in
-#           one histogram (not done)
-
-#12/19
-# Edited data_prep.R to make cleantable smaller
-# Added back in "not easy" data from Fatal Encounters for individual deaths map
 
 vars <- c(
   "Race" = "race",

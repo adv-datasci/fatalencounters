@@ -1,0 +1,113 @@
+---
+title: "Collab Notes"
+author: "Kenneth Morales"
+date: "November 20, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ADS II Final Project: Predictive Police Violence
+
+Kenny’s idea: take a dataset (or datsets), run a (logistic regression?) model on it, use this to predict based on a user’s inputs (on race, age, where they live, etc.) on their odds of being the victim of a police killing relative to (referent?) person -- don’t have a denominator for that.
+
+Do a heat map based on geography--we need to find a way to regress location. Ask professors? Ask Dr. Shpister?
+Agency as a factor. Need to categorize by type (police department, sheriff’s department, state agency, border patrol, etc.).
+Potential to do death by hometown police department -- need to explore, generate variables
+
+Inspiration: https://whitecollar.thenewinquiry.com/
+
+Visuals:
+Heat map of risk?
+Graph by cause of death
+
+##To do:
+clean up fatal encounters data
+Race: 
+Hispanic is a race category in main dataset
+Generate demographic var for each group
+Age
+Group like demographic table
+< 1 year, 1-4 years, 5-9 years, 10-14 years, 15-19 years, 20-24 years, 25-34 years, 35-44 years, 45-54 years, 55-64 years, 65-74 years, 75-84 years, 85+ years 
+
+##Variables of interest:
+```{r rename variables}
+fatal_sm<-fatal_sm %>%
+  rename("name"="Subject.s.name",
+         "age" = "Subject.s.age",
+         "sex" = "Subject.s.gender",
+         "race" = "Subject.s.race",
+         "date" = "Date.of.injury.resulting.in.death..month.day.year.",
+         "address" = "Location.of.injury..address.",
+         "city" = "Location.of.death..city.",
+         "state" = "Location.of.death..state.",
+         "zipcode" = "Location.of.death..zip.code.",
+         "county" = "Location.of.death..county.",
+         "agency" = "Agency.responsible.for.death",
+         "cause" = "Cause.of.death",
+         "mental_ill" = "Symptoms.of.mental.illness.",
+         "year" = "Date..Year."
+  )
+```
+
+Age group
+Race / ethnicity
+
+### Datasets:
+
+POLICE SLAYINGS:
+Fatal Encountes: USING https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
+    Observations: 23k, 25 variables
+U.S. Police Shootings Data
+good for comparing injury vs. death, but not enough data and ton of missingness in data of incident https://docs.google.com/spreadsheets/d/1cEGQ3eAFKpFBVq1k2mZIy5mBPxC6nBTJHzuSWtZQSVw/edit#gid=1144428085
+    Obs. 2198, 27 variables
+KilledByPolice.net:
+Not that great, don’t yse 
+http://killedbypolice.net/
+
+DEATH INDEX:
+All data gleaned from the CDC - National Center for Health Statistics compressed mortality file: https://www.cdc.gov/nchs/data_access/cmf.htm#external
+
+Datasets will either have to be merged to and have duplicates deleted, or we should decide to stick with one or two of them (KilledByPolice for example is quite limited in the information it has, though we could datamine from the articles linked, but I would strongly prefer we not)
+
+#### To do:
+
+1) come up with 2-3 very concrete, specific research questions/ideas of what we want to accomplish
+
+2) have a clean, merged dataset, the structure of which (missing values? variable names? what data is in each variable? how was the data collected? etc.) we understand well
+
+3) read through his past work to see if what work, if any, he’s done in bias and predictive policing already
+
+4) Kenny - split dataset into 
+  Easy to play with (deathindex and fatal match up)
+  Hard to play with (no matches / missing data issues)
+  
+### Timeline:
+
+Week 4: 
+1) Come up with a specific research questions/idea of what we want to accomplish
+Probably each of us should come up with 2-3 questions and approaches each, and then we can merge them or pick our favorite ones.
+
+2) Clean and merge the 3 datasets
+Probably one of us should take responsibility for doing all this — I have no preference.
+
+3) Do some literature review to help inform what questions might be might be interesting for our Shiny app to answer
+e.g. what academic work has already been done? what questions or arguments do activists have? what are questions or counterarguments (e.g. from BlueLivesMatter or whatnot)?
+
+Week 5 :  
+Exploratory data analysis: what trends are interesting?
+Come up with the types of functionality we want our app to have
+(Possibly) chat with Ilya
+
+Week 6 : CURRENT WEEK
+Work on backend stuff
+
+Week 7 
+Work on front end stuff
+
+Week 8
+Last minute touches
+Turn in the project.
+
