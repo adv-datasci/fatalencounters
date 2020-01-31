@@ -2,8 +2,12 @@
 ### UI for app
 ### kbmorales@protonmail.com
 
+
+# Setup -------------------------------------------------------------------
+
 library(leaflet)
 library(spatial)
+library(shiny)
 
 vars <- c(
   "Race" = "race",
@@ -20,6 +24,9 @@ rrraces <- c(
   "Native vs. White" = "nativerr",
   "Asian vs. White" = "asianrr"
 )
+
+
+# App ---------------------------------------------------------------------
 
 navbarPage("Fatal Encounters", id="nav",
            
@@ -43,15 +50,24 @@ navbarPage("Fatal Encounters", id="nav",
                         leafletOutput("map", width="100%", height="100%"),
                         
                         # Shiny versions prior to 0.11 should use class = "modal" instead.
-                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-                                      draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
-                                      width = 330, height = "auto",
+                        absolutePanel(id = "controls",
+                                      class = "panel panel-default",
+                                      fixed = TRUE,
+                                      draggable = TRUE, 
+                                      top = 60, 
+                                      left = "auto",
+                                      right = 20, 
+                                      bottom = "auto",
+                                      width = 330,
+                                      height = "auto",
                                       
                                       #Title of the sidebar
-                                      h3("Mapping Individual Deaths"),
+                                      h4("Mapping Individual Deaths"),
                                       
                                       #Various icon inputs
-                                      selectInput("color", "Demographic selector", vars, selected = NULL),
+                                      selectInput("color", "Demographic selector", 
+                                                  vars, 
+                                                  selected = NULL),
                                       
                                       #TO DO: Fix server.R so that this selector can work
                                       # selectizeInput(
@@ -67,13 +83,35 @@ navbarPage("Fatal Encounters", id="nav",
                                       ),
                                       
                                       #Bar plots below the user interface
-                                      #plotOutput("histCentile", height = 200),
-                                      #plotOutput("scatterCollegeIncome", height = 250)
-                                      
-                                      #plotOutput("plot1", height = 250),
-                                      #plotOutput("plot2", height = 250)
                                       plotOutput("plot1", height = 400)
+                                      
                         ),
+                        
+                        absolutePanel(id = "controls",
+                                      class = "panel panel-default",
+                                      fixed = T,
+                                      draggable = T,
+                                      bottom = 10,
+                                      left = 10,
+                                      width = 300,
+                                      
+                                      h4("Years to display"),
+                                      
+                                      sliderInput("year",
+                                                  label = "",
+                                                  min = 2000,
+                                                  max = 2020,
+                                                  value = c(2000,
+                                                            2020
+                                                            ),
+                                                  step = 1,
+                                                  round = T,
+                                                  animate = F,
+                                                  width = "100%",
+                                                  sep = "",
+                                                  dragRange = T
+                                                  )
+                                      ),
                         
                         tags$div(id="cite",
                                  'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
@@ -100,7 +138,7 @@ navbarPage("Fatal Encounters", id="nav",
                                       h3("Risk Map"),
                                       
                                       # Descriptive text
-                                      h5("Initial display is overall risk from 2000-2015, controlled for population."),
+                                      h5("Initial display is rank percentile of relative risk of police-involved death from 2000-2015, controlled for population."),
                                       
                                       # RR selector
                                       selectInput("rr", "Relative Risk by Race", rrraces, selected = "None"),

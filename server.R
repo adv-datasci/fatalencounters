@@ -1,3 +1,6 @@
+### Server side for app
+### kbmorales
+### kbmorales@protonmail.com
 
 # Setup -------------------------------------------------------------------
 
@@ -11,9 +14,41 @@ library(scales)
 library(lattice)
 library(dplyr)
 library(leaflet.extras)
+library(ggplot2)
 
 function(input, output, session) {
+  
+
+# Reactive datasets -------------------------------------------------------
+
+  
+  
   ## Interactive Map ###########################################
+  
+  # A reactive expression that returns the set of zips that are
+  # in bounds right now
+  
+  year_filt <- reactive({
+    year_min = min(input$year)
+    year_max = max(input$year)
+    
+    subset(fatal,
+           year >= year_min &
+           year <= year_max)
+    
+  })
+  
+  zipsInBounds <- reactive({
+    if (is.null(input$map_bounds))
+      return(year_filt()[FALSE,])
+    bounds <- input$map_bounds
+    latRng <- range(bounds$north, bounds$south)
+    lngRng <- range(bounds$east, bounds$west)
+    
+    subset(year_filt(),
+           lat >= latRng[1] & lat <= latRng[2] &
+             lon >= lngRng[1] & lon <= lngRng[2])
+  })
   
   # Create the map
   output$map <- renderLeaflet({
@@ -22,7 +57,7 @@ function(input, output, session) {
         urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
         attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
       ) %>%
-      addCircleMarkers(data = fatal,
+      addCircleMarkers(data = year_filt(),
                        ~lon,
                        ~lat,
                        radius=3,
@@ -38,22 +73,7 @@ function(input, output, session) {
       addResetMapButton() %>%
       addControl("<P>You may search by a person's name.</P>",
                  position='bottomright') %>% 
-      setView(lng = -93.85, lat = 37.45, zoom = 4)
-  })
-  
-  # A reactive expression that returns the set of zips that are
-  # in bounds right now
-  
-  zipsInBounds <- reactive({
-    if (is.null(input$map_bounds))
-      return(fatal[FALSE,])
-    bounds <- input$map_bounds
-    latRng <- range(bounds$north, bounds$south)
-    lngRng <- range(bounds$east, bounds$west)
-    
-    subset(fatal,
-           lat >= latRng[1] & lat <= latRng[2] &
-             lon >= lngRng[1] & lon <= lngRng[2])
+      setView(lng = -88.85, lat = 37.45, zoom = 5)
   })
   
   #################
@@ -78,12 +98,19 @@ function(input, output, session) {
                            server = TRUE)
     } else if (colorBy == "age") {
       updateSelectizeInput(session, "selectize",
-                           choices=c("< 1 year","1 - 4 years", "5 - 9 years",
-                                     "10 - 14 years","15 - 19 years",
-                                     "20 - 24 years","25 - 34 years",
-                                     "35 - 44 years","45 - 54 years",
-                                     "55 - 64 years","65 - 74 years",
-                                     "75 - 84 years","85+ years"
+                           choices=c("< 1 year",
+                                     "1 - 4 years",
+                                     "5 - 9 years",
+                                     "10 - 14 years",
+                                     "15 - 19 years",
+                                     "20 - 24 years",
+                                     "25 - 34 years",
+                                     "35 - 44 years",
+                                     "45 - 54 years",
+                                     "55 - 64 years",
+                                     "65 - 74 years",
+                                     "75 - 84 years",
+                                     "85+ years"
                            )
                            , selected=choices[selectionIndex], 
                            server = TRUE)
@@ -106,7 +133,6 @@ function(input, output, session) {
     }
   })
   
-  
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
     # If no zipcodes are in view, don't plot
@@ -116,7 +142,7 @@ function(input, output, session) {
       barplot(prop.table(table(zipsInBounds()$race)),
               main = "Racial demographics of decedents",
               ylab = "Race",
-              cex.names=0.8,
+              cex.names=0.6,
               horiz = TRUE,
               xlab = "Proportion",
               col = '#00DD00',
@@ -126,7 +152,7 @@ function(input, output, session) {
               #breaks = centileBreaks,
               main = "Sex of decedents",
               ylab = "Percentage",
-              cex.names=0.8,
+              cex.names=0.6,
               ylim = c(0,1),
               xlab = "Sex",
               col = '#00DD00',
@@ -137,7 +163,7 @@ function(input, output, session) {
               main = "Age profiles of decedents",
               horiz = TRUE,
               ylab = "Age groups",
-              cex.names=0.8,
+              cex.names=NULL,
               xlab = "Proportion",
               col = '#00DD00',
               border = 'white')
@@ -147,7 +173,7 @@ function(input, output, session) {
               main = "Cause of death",
               horiz= TRUE, 
               ylab = "Cause",
-              cex.names=0.8,
+              cex.names=0.6,
               xlab = "Proportion",
               col = '#00DD00',
               border = 'white')
@@ -156,7 +182,7 @@ function(input, output, session) {
               #breaks = centileBreaks,
               main = "Year breakdown of deaths",
               ylab = "Percentage",
-              cex.names=0.8,
+              cex.names=0.6,
               xlab = "Year",
               col = '#00DD00',
               border = 'white')
@@ -322,7 +348,10 @@ function(input, output, session) {
                     label = ~NAME,
                     group = 'counties') %>%
         setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
-        addLegend("bottomleft", pal=pal, values=rrcolorData, title= 'Risk of Fatal Encounter',
+        addLegend("bottomleft",
+                  pal=pal, 
+                  values=rrcolorData, 
+                  title= 'Relative Risk',
                   layerId="riskLegend") %>%
         addSearchFeatures(
           targetGroups  = 'counties',
@@ -339,7 +368,7 @@ function(input, output, session) {
   
   observe({
     cities <- if (is.null(input$states)) character(0) else {
-      filter(cleantable, State %in% input$states) %>%
+      filter(fatal, State %in% input$states) %>%
         `$`('City') %>%
         unique() %>%
         sort()
@@ -351,7 +380,7 @@ function(input, output, session) {
   
   observe({
     zipcodes <- if (is.null(input$states)) character(0) else {
-      cleantable %>%
+      fatal %>%
         filter(State %in% input$states,
                is.null(input$cities) | City %in% input$cities) %>%
         `$`('Zipcode') %>%
@@ -377,17 +406,31 @@ function(input, output, session) {
       map %>% fitBounds(lng - dist, lat - dist, lng + dist, lat + dist)
     })
   })
+  
   output$ziptable <- DT::renderDataTable({
-    df <- cleantable %>%
+    
+    df <- fatal %>%
+      arrange(desc(date)) %>%
       filter(
         is.null(input$states) | state %in% input$states,
         is.null(input$cities) | city %in% input$cities,
         is.null(input$zipcodes) | zipcode %in% input$zipcodes
       ) %>%
-      mutate(img = paste("<img src='", url_name,"' height=", "'100'></img>",sep=""))
+      mutate(img = ifelse(!is.na(url_name),
+                            paste("<img src='", 
+                                  url_name,
+                                  "' height=",
+                                  "'100'></img>",
+                                  sep=""),
+                            NA),
+             source = paste("<a href='",
+                                   news_link,
+                                   "'>Link</a>",
+                                   sep="")
+             )
     
-    df<-df %>%
-      mutate(source = paste("<a href='", news_link,"'>Link</a>",sep=""))
+    
+      
     
   #TODO: Allows user to go to selected row on the interactive map
   #  Needs to be fixed
@@ -395,22 +438,20 @@ function(input, output, session) {
     
     df<-df %>%
       select(
-        name,
-        img,
-        age,
-        sex,
-        race,
-        date,
-        city, 
-        state,
-        county,
-        agency,
-        cause,
-        circumstances_surrounding_death = description,
-        official_description,
-        source,
-        mental_ill,
-        year
+        "Name" = name,
+        "Image" = img,
+        "Date" = date,
+        "Age" = age,
+        "Gender" = sex,
+        "Race" = race,
+        "City" = city, 
+        "State" = state,
+        "County" = county,
+        "Agency" = agency,
+        "Cause" = cause,
+        "Description" = description,
+        "Disposition" = official_description,
+        "Source" = source
       )
 
   

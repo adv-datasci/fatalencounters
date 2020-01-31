@@ -28,8 +28,9 @@ fatal <- gs_read(fatal_encounters_url) %>%
 # Data clean --------------------------------------------------------------
 
 ## Remove final row alerting to unverified data
-fatal <- fatal[-nrow(fatal),]
+stop_row <- which(fatal$subjects_name=="Items below this row have not been fact-checked.")
 
+fatal <- fatal %>% filter(row_number() < stop_row)
 
 fatal <- fatal %>%
   select(name = subjects_name,
@@ -89,6 +90,13 @@ fatal$race[fatal$race == "European American/White"] <- "European-American/White"
 fatal$race[is.na(fatal$race)] <- "Unknown"
 fatal$race[fatal$race == "Race unspecified"] <- "Unknown"
 
+fatal$race[fatal$race == "Native American/Alaskan"] <- "Native"
+fatal$race[fatal$race == "Middle Eastern"] <- "White"
+fatal$race[fatal$race == "Hispanic/Latino"] <- "Hispanic"
+fatal$race[fatal$race == "European-American/White"] <- "White"
+fatal$race[fatal$race == "Asian/Pacific Islander"] <- "Asian"
+fatal$race[fatal$race == "African-American/Black"] <- "Black"
+
 # Gender
 unique(fatal$sex)
 fatal$sex[fatal$sex == "Femalr"] <- "Female"
@@ -98,6 +106,20 @@ fatal$sex[fatal$sex == "White"] <- "Unknown"
 
 # Mental illness
 fatal$mental_ill[is.na(fatal$mental_ill)] <- "Unknown"
+
+# Clean cause
+fatal$cause[fatal$cause == "Undetermined"] <- "Other"
+fatal$cause[fatal$cause == "Stabbed"] <- "Other"
+fatal$cause[fatal$cause == "Fell from a height"] <- "Other"
+fatal$cause[fatal$cause == "Drug overdose"] <- "Other"
+fatal$cause[fatal$cause == "Drowned"] <- "Other"
+fatal$cause[fatal$cause == "Chemical agent/Pepper spray"] <- "Other"
+fatal$cause[fatal$cause == "Burned/Smoke inhalation"] <- "Other"
+fatal$cause[fatal$cause == "Beaten/Bludgeoned with instrument"] <- "Other"
+fatal$cause[fatal$cause == ""] <- "Other"
+fatal$cause[fatal$cause == "Asphyxiated/Restrained"] <- "Suffocated"
+fatal$cause[fatal$cause == "Suffocated"] <- "Other"
+fatal$cause[fatal$cause == "Medical emergency"] <- "Other"
 
 ###
 ### Generate new variable for EASY - if info easily meshes with death index stats

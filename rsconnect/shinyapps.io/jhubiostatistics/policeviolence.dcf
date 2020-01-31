@@ -1,0 +1,12 @@
+name: policeviolence
+title: policeviolence
+username:
+account: jhubiostatistics
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 249987
+bundleId: 2765360
+url: https://jhubiostatistics.shinyapps.io/policeviolence/
+when: 1580432085.08564
+asMultiple: FALSE
+asStatic: FALSE
