@@ -1,6 +1,6 @@
 ### Server side for app
 ### kbmorales
-### kbmorales@protonmail.com
+### kbmorales@proton
 
 # Setup -------------------------------------------------------------------
 
@@ -17,38 +17,7 @@ library(leaflet.extras)
 library(ggplot2)
 
 function(input, output, session) {
-  
-
-# Reactive datasets -------------------------------------------------------
-
-  
-  
   ## Interactive Map ###########################################
-  
-  # A reactive expression that returns the set of zips that are
-  # in bounds right now
-  
-  year_filt <- reactive({
-    year_min = min(input$year)
-    year_max = max(input$year)
-    
-    subset(fatal,
-           year >= year_min &
-           year <= year_max)
-    
-  })
-  
-  zipsInBounds <- reactive({
-    if (is.null(input$map_bounds))
-      return(year_filt()[FALSE,])
-    bounds <- input$map_bounds
-    latRng <- range(bounds$north, bounds$south)
-    lngRng <- range(bounds$east, bounds$west)
-    
-    subset(year_filt(),
-           lat >= latRng[1] & lat <= latRng[2] &
-             lon >= lngRng[1] & lon <= lngRng[2])
-  })
   
   # Create the map
   output$map <- renderLeaflet({
@@ -57,7 +26,7 @@ function(input, output, session) {
         urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
         attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
       ) %>%
-      addCircleMarkers(data = year_filt(),
+      addCircleMarkers(data = fatal,
                        ~lon,
                        ~lat,
                        radius=3,
@@ -73,7 +42,22 @@ function(input, output, session) {
       addResetMapButton() %>%
       addControl("<P>You may search by a person's name.</P>",
                  position='bottomright') %>% 
-      setView(lng = -88.85, lat = 37.45, zoom = 5)
+      setView(lng = -93.85, lat = 37.45, zoom = 4)
+  })
+  
+  # A reactive expression that returns the set of zips that are
+  # in bounds right now
+  
+  zipsInBounds <- reactive({
+    if (is.null(input$map_bounds))
+      return(fatal[FALSE,])
+    bounds <- input$map_bounds
+    latRng <- range(bounds$north, bounds$south)
+    lngRng <- range(bounds$east, bounds$west)
+    
+    subset(fatal,
+           lat >= latRng[1] & lat <= latRng[2] &
+             lon >= lngRng[1] & lon <= lngRng[2])
   })
   
   #################
@@ -132,6 +116,7 @@ function(input, output, session) {
       return(a)
     }
   })
+  
   
   #Output histograms in the user interface
   output$plot1 <- renderPlot({

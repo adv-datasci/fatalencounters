@@ -7,11 +7,10 @@
 
 library(leaflet)
 library(spatial)
-library(shiny)
 
 vars <- c(
   "Race" = "race",
-  "Sex" = "sex",
+  "Gender" = "sex",
   "Age" = "age",
   "Cause of death" = "cause",
   "Year" = "year"
@@ -62,12 +61,10 @@ navbarPage("Fatal Encounters", id="nav",
                                       height = "auto",
                                       
                                       #Title of the sidebar
-                                      h4("Mapping Individual Deaths"),
+                                      h3("Mapping Individual Deaths"),
                                       
                                       #Various icon inputs
-                                      selectInput("color", "Demographic selector", 
-                                                  vars, 
-                                                  selected = NULL),
+                                      selectInput("color", "Demographic selector", vars, selected = NULL),
                                       
                                       #TO DO: Fix server.R so that this selector can work
                                       # selectizeInput(
@@ -83,35 +80,10 @@ navbarPage("Fatal Encounters", id="nav",
                                       ),
                                       
                                       #Bar plots below the user interface
+                                    
                                       plotOutput("plot1", height = 400)
                                       
                         ),
-                        
-                        absolutePanel(id = "controls",
-                                      class = "panel panel-default",
-                                      fixed = T,
-                                      draggable = T,
-                                      bottom = 10,
-                                      left = 10,
-                                      width = 300,
-                                      
-                                      h4("Years to display"),
-                                      
-                                      sliderInput("year",
-                                                  label = "",
-                                                  min = 2000,
-                                                  max = 2020,
-                                                  value = c(2000,
-                                                            2020
-                                                            ),
-                                                  step = 1,
-                                                  round = T,
-                                                  animate = F,
-                                                  width = "100%",
-                                                  sep = "",
-                                                  dragRange = T
-                                                  )
-                                      ),
                         
                         tags$div(id="cite",
                                  'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
