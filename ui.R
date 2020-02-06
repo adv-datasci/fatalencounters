@@ -7,6 +7,7 @@
 
 library(leaflet)
 library(spatial)
+library(DT)
 
 vars <- c(
   "Race" = "race",
@@ -36,13 +37,20 @@ navbarPage("Fatal Encounters", id="nav",
                       )
                     )
            ),
+           
+
+# Deaths map --------------------------------------------------------------
+
+
            tabPanel("Deaths",
                     div(class="outer",
                         
                         tags$head(
                           # Include our custom CSS
-                          includeCSS("styles.css"),
-                          includeScript("gomap.js")
+                          includeCSS(file.path("code",
+                                               "styles.css")),
+                          includeScript(file.path("code",
+                                                  "gomap.js"))
                         ),
                         
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
@@ -90,21 +98,37 @@ navbarPage("Fatal Encounters", id="nav",
                         )
                     )
            ),
+
+
+# Risk Map ----------------------------------------------------------------
+
+
            tabPanel("Risk Map",
                     div(class="outer",
                         tags$head(
                           # Include our custom CSS
-                          includeCSS("styles.css"),
-                          includeScript("gomap.js")
+                          includeCSS(file.path("code",
+                                               "styles.css")),
+                          includeScript(file.path("code",
+                                                  "gomap.js"))
                         ),
                         
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
-                        leafletOutput("heatmap", width="100%", height="100%"),
+                        leafletOutput("heatmap",
+                                      width = "100%",
+                                      height = "100%"),
                         
                         # Shiny versions prior to 0.11 should use class = "modal" instead.
-                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-                                      draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
-                                      width = 330, height = "auto",
+                        absolutePanel(id = "controls",
+                                      class = "panel panel-default",
+                                      fixed = TRUE,
+                                      draggable = TRUE,
+                                      top = 60,
+                                      left = "auto",
+                                      right = 20,
+                                      bottom = "auto",
+                                      width = 330,
+                                      height = "auto",
                                       
                                       # Title of the sidebar
                                       h3("Risk Map"),
@@ -113,7 +137,10 @@ navbarPage("Fatal Encounters", id="nav",
                                       h5("Initial display is rank percentile of relative risk of police-involved death from 2000-2015, controlled for population."),
                                       
                                       # RR selector
-                                      selectInput("rr", "Relative Risk by Race", rrraces, selected = "None"),
+                                      selectInput("rr",
+                                                  "Relative Risk by Race",
+                                                  rrraces,
+                                                  selected = "None"),
                                       
                                       # Descriptive text
                                       h5("Relative risks are computed using white race as the comparison."),
@@ -122,8 +149,10 @@ navbarPage("Fatal Encounters", id="nav",
                                       ),
                         
                         tags$div(id="cite",
-                                 'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
-                        )
+                                 'Data compiled for ',
+                                 tags$em('Fatal Encounters'),
+                                 ' www.fatalencounters.org'
+                                 )
                     )
            ),
            
@@ -139,29 +168,16 @@ navbarPage("Fatal Encounters", id="nav",
            #                    ),
            
            ## Data Explorer ###########################################
-           
+
+
+# Data explorer -----------------------------------------------------------
+
+
            tabPanel("Data explorer",
-                    #TODO: State selector is broken and needs to be fixed
                     
-                    # fluidRow(
-                    #   column(3,
-                    #          selectInput("states", "States", c("All states"="", structure(state.abb, names=state.name), "Washington, DC"="DC"), multiple=TRUE)
-                    #   ),
-                    #   column(3,
-                    #          conditionalPanel("input.states",
-                    #                           selectInput("cities", "Cities", c("All cities"=""), multiple=TRUE)
-                    #          )
-                    #   ),
-                    #   column(3,
-                    #          conditionalPanel("input.states",
-                    #                           selectInput("zipcodes", "Zipcodes", c("All zipcodes"=""), multiple=TRUE)
-                    #          )
-                    #   )
-                    # ),
-                    # hr(),
-                    
-                    DT::dataTableOutput("ziptable")
+                    dataTableOutput("ziptable")
            ),
            
-           conditionalPanel("false", icon("crosshair"))
+           conditionalPanel("false",
+                            icon("crosshair"))
 )

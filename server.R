@@ -9,15 +9,16 @@ library(rgeos)
 library(rgdal)
 library(maptools)
 library(leaflet)
+library(leaflet.extras)
 library(RColorBrewer)
 library(scales)
 library(lattice)
-library(dplyr)
-library(leaflet.extras)
+library(tidyverse)
 library(ggplot2)
 
 function(input, output, session) {
-  ## Interactive Map ###########################################
+
+# Deaths map --------------------------------------------------------------
   
   # Create the map
   output$map <- renderLeaflet({
@@ -125,7 +126,7 @@ function(input, output, session) {
       return(NULL)
     if (input$hist == "race") {
       barplot(prop.table(table(zipsInBounds()$race)),
-              main = "Racial demographics of decedents",
+              main = "Race",
               ylab = "Race",
               cex.names=0.6,
               horiz = TRUE,
@@ -135,7 +136,7 @@ function(input, output, session) {
     } else if (input$hist == "sex") {
       barplot(prop.table(table(zipsInBounds()$sex)),
               #breaks = centileBreaks,
-              main = "Sex of decedents",
+              main = "Gender",
               ylab = "Percentage",
               cex.names=0.6,
               ylim = c(0,1),
@@ -145,7 +146,7 @@ function(input, output, session) {
     } else if (input$hist == "age") {
       barplot(prop.table(table(zipsInBounds()$agerng)),
               #breaks = centileBreaks,
-              main = "Age profiles of decedents",
+              main = "Age range",
               horiz = TRUE,
               ylab = "Age groups",
               cex.names=NULL,
