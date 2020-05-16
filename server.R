@@ -114,7 +114,8 @@ function(input, output, session) {
     if (is.na(selected)){
       return(fatal)
     } else {
-      a <- subset(fatal, category == selected)
+      a <- subset(fatal,
+                  category == selected)
       return(a)
     }
   })
@@ -147,15 +148,22 @@ function(input, output, session) {
         theme(legend.position = "none",
               axis.text=element_text(size=14)) 
     } else if (input$color == "sex") {
-      barplot(prop.table(table(zipsInBounds()$sex)),
-              #breaks = centileBreaks,
-              main = "Gender",
-              ylab = "Percentage",
-              cex.names=1,
-              ylim = c(0,1),
-              xlab = "Sex",
-              col = '#00DD00',
-              border = 'white')
+      ggplot(fatal,
+             aes(x = sex,
+                 fill = sex)) + 
+        geom_bar() + 
+        coord_flip() +
+        labs(x = "",
+             y = "Count") +
+        scale_fill_viridis_d() +
+        scale_x_discrete(limits = c("Unknown",
+                                    "Transgender",
+                                    "Male",
+                                    "Female")
+                         ) +
+        theme_minimal() +
+        theme(legend.position = "none",
+              axis.text=element_text(size=14)) 
     } else if (input$color == "age") {
       barplot(prop.table(table(zipsInBounds()$agerng)),
               #breaks = centileBreaks,
@@ -234,18 +242,12 @@ function(input, output, session) {
       
       if (colorBy == "race") {
       colorData <- factor(fatal$race)
-      pal <- colorFactor(palette = "viridis", 
-                         colorData)
       
-      #Change this to specify each race as a more intuitive color?
-      #pal <- c("black","white","yellow","brown","red", "orange", "green")
       } else if (colorBy == "cause") {
         colorData <- factor(fatal$cause)
-        pal <- colorFactor("Dark2", colorData)
         
       } else if (colorBy == "sex") {
         colorData <- factor(fatal$sex)
-        pal <- colorFactor("Dark2", colorData)
         
       } else if (colorBy == "age") {
         colorData <- factor(fatal$agerng, 
@@ -259,10 +261,10 @@ function(input, output, session) {
                               )
         )
         
-        pal <- colorFactor("viridis", 
-                           colorData)
-        
       }
+      
+      pal <- colorFactor("viridis", 
+                         colorData)
       
       #output$table1 <- renderTable(df_subset())
       
@@ -278,15 +280,18 @@ function(input, output, session) {
                           fillOpacity=0.4, 
                           fillColor=pal(colorData), 
                           label = ~name, 
-                          group = 'person') %>%
-        addLegend("bottomleft", 
-                  pal=pal, 
-                  values=colorData, 
-                  title=paste0(
-                    toupper(substring(colorBy, 1,1)),
-                    substring(colorBy, 2)
-                    ),
-                  layerId="colorLegend")
+                          group = 'person') 
+      
+      ## To readd legend (debugging)
+      
+        # addLegend("bottomleft", 
+        #           pal=pal, 
+        #           values=colorData, 
+        #           title=paste0(
+        #             toupper(substring(colorBy, 1,1)),
+        #             substring(colorBy, 2)
+        #             ),
+        #           layerId="colorLegend")
     
     }
     
