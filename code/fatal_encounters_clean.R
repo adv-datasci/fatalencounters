@@ -2,28 +2,12 @@
 ### kbmorales
 ### kbmorales@protonmail.com
 
+# fatal_encounters_collect.R should be run first
 
 # Setup -------------------------------------------------------------------
 
 library(tidyverse)
 library(ggplot2)
-library(stringr)
-library(janitor)
-library(googlesheets)
-
-# Data fetch --------------------------------------------------------------
-
-## Connect to Fatal Encounters dataset
-fatal_encounters_url <- gs_url("https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit?usp=sharing")
-
-# Download data
-fatal <- gs_read(fatal_encounters_url) %>%
-  clean_names()
-
-# Load fatal encounters database
-
-# fatal <- read.csv("~/adsterm2/Term2Proj/data/fatal.csv",
-#                   stringsAsFactors = FALSE)
 
 # Data clean --------------------------------------------------------------
 
@@ -133,20 +117,3 @@ fatal$easy[fatal$agerng == "Unknown"] <- F
 # Create new datasets for easy and not easy 
 fataleasy <- subset(fatal, easy == T)
 fatalnoteasy <- subset(fatal, easy == F)
-
-# EDA ---------------------------------------------------------------------
-
-# # Age
-# ggplot(data = fatal, aes(x = agerng)) + geom_bar() + coord_flip()
-# 
-# # Race
-# ggplot(data = fatal, aes(x = race)) + geom_bar() + coord_flip()
-# 
-# # Gender
-# ggplot(data = fatal, aes(x = sex)) + geom_bar()
-# 
-# # So called mental illness
-# ggplot(fatal, aes(x = mental_ill)) + geom_bar()
-# 
-# # Easy?
-# ggplot(data = fatal, aes(x = easy)) + geom_bar()
