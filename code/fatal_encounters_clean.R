@@ -8,6 +8,10 @@
 
 library(tidyverse)
 
+## Run fatal_encounters_collect.R first
+# source(here::here("code",
+#                   "fatal_encounters_collect.R"))
+
 # Data clean --------------------------------------------------------------
 
 ## Remove final row alerting to unverified data
@@ -63,7 +67,24 @@ fatal <- fatal %>%
     between(as.numeric(age), 75, 84)  ~ "75 - 84 years",
     as.numeric(age) > 84 ~ "85+ years",
     TRUE ~ "Unknown"
-  ))
+  )) %>% 
+  mutate(agerng = factor(agerng,
+                         levels = c("< 1 year",
+                                    "1 - 4 years",
+                                    "5 - 9 years",
+                                    "10 - 14 years",
+                                    "15 - 19 years",
+                                    "20 - 24 years",
+                                    "25 - 34 years",
+                                    "35 - 44 years", 
+                                    "45 - 54 years", 
+                                    "55 - 64 years", 
+                                    "65 - 74 years",
+                                    "75 - 84 years",
+                                    "85+ years",
+                                    "Unknown")
+                         )
+         )
 
 fatal$age[fatal$age == 0] <- "Unknown"
 
@@ -80,6 +101,17 @@ fatal$race[fatal$race == "European-American/White" |
 fatal$race[fatal$race == "Asian/Pacific Islander"] <- "Asian"
 fatal$race[fatal$race == "African-American/Black"] <- "Black"
 
+fatal <- fatal %>% 
+  mutate(race = factor(race,
+                       levels = c("Asian",
+                                  "Black",
+                                  "Hispanic",
+                                  "Native",
+                                  "White",
+                                  "Unknown")
+                       )
+         )
+
 # Gender
 unique(fatal$sex)
 fatal$sex[fatal$sex == "Femalr"] <- "Female"
@@ -87,11 +119,18 @@ fatal$sex[fatal$sex == "Transexual"] <- "Transgender"
 fatal$sex[is.na(fatal$sex)] <- "Unknown"
 fatal$sex[fatal$sex == "White"] <- "Unknown"
 
+fatal <- fatal %>% 
+  mutate(sex = factor(sex,
+                      levels = c("Female",
+                                 "Male",
+                                 "Transgender",
+                                 "Unknown")))
+
 # Mental illness
 fatal$mental_ill[is.na(fatal$mental_ill)] <- "Unknown"
 
 # Clean cause
-fatal$cause[fatal$cause == "Undetermined"] <- "Other"
+fatal$cause[fatal$cause == "Undetermined"] <- "Unknown"
 fatal$cause[fatal$cause == "Stabbed"] <- "Other"
 fatal$cause[fatal$cause == "Fell from a height"] <- "Other"
 fatal$cause[fatal$cause == "Drug overdose"] <- "Other"
@@ -99,10 +138,18 @@ fatal$cause[fatal$cause == "Drowned"] <- "Other"
 fatal$cause[fatal$cause == "Chemical agent/Pepper spray"] <- "Other"
 fatal$cause[fatal$cause == "Burned/Smoke inhalation"] <- "Other"
 fatal$cause[fatal$cause == "Beaten/Bludgeoned with instrument"] <- "Other"
-fatal$cause[fatal$cause == ""] <- "Other"
+fatal$cause[fatal$cause == ""] <- "Unknown"
 fatal$cause[fatal$cause == "Asphyxiated/Restrained"] <- "Suffocated"
 fatal$cause[fatal$cause == "Suffocated"] <- "Other"
 fatal$cause[fatal$cause == "Medical emergency"] <- "Other"
+
+fatal <- fatal %>% 
+  mutate(cause = factor(fatal$cause,
+                        levels = c("Gunshot",
+                                   "Tasered",
+                                   "Vehicle",
+                                   "Other",
+                                   "Unknown")))
 
 ###
 ### Generate new variable for EASY - if info easily meshes with death index stats

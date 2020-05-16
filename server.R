@@ -33,7 +33,7 @@ function(input, output, session) {
                        radius=3,
                        layerId=~name,                       
                        stroke=FALSE, 
-                       fillOpacity=0.4, 
+                       fillOpacity=0.8, 
                        fillColor='#000000',
                        label = ~name, 
                        group = 'person') %>%
@@ -122,11 +122,15 @@ function(input, output, session) {
   
 
 # Histogram ---------------------------------------------------------------
+  
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
+    
     # If no zipcodes are in view, don't plot
     if (nrow(zipsInBounds()) == 0)
       return(NULL)
+    
+    # Otherwise output by selection
     if (input$color == "race") {
       ggplot(zipsInBounds(),
              aes(x = race,
@@ -135,14 +139,7 @@ function(input, output, session) {
         coord_flip() +
         labs(x = "",
              y = "Count") +
-        scale_x_discrete(limits = c("White",
-                                    "Unknown",
-                                    "Native",
-                                    "Hispanic",
-                                    "Black",
-                                    "Asian"
-                                    )
-          ) +
+        scale_x_discrete(limits = rev(levels(fatal$race))) +
         scale_fill_viridis_d() +
         theme_minimal() +
         theme(legend.position = "none",
@@ -156,34 +153,40 @@ function(input, output, session) {
         labs(x = "",
              y = "Count") +
         scale_fill_viridis_d() +
-        scale_x_discrete(limits = c("Unknown",
-                                    "Transgender",
-                                    "Male",
-                                    "Female")
-                         ) +
+        scale_x_discrete(limits = rev(levels(fatal$sex))) +
         theme_minimal() +
         theme(legend.position = "none",
               axis.text=element_text(size=14)) 
     } else if (input$color == "age") {
-      barplot(prop.table(table(zipsInBounds()$agerng)),
-              #breaks = centileBreaks,
-              main = "Age range",
-              horiz = TRUE,
-              ylab = "Age groups",
-              cex.names=NULL,
-              xlab = "Proportion",
-              col = '#00DD00',
-              border = 'white')
+      ggplot(zipsInBounds(),
+             aes(x = agerng,
+                 fill = agerng)) + 
+        geom_bar() + 
+        coord_flip() +
+        labs(x = "",
+             y = "Count") +
+        scale_fill_viridis_d() +
+        theme_minimal() +
+        theme(legend.position = "none",
+              axis.text=element_text(size=14)) 
     } else if (input$color == "cause") {
-      barplot(prop.table(table(zipsInBounds()$cause)),
-              #breaks = centileBreaks,
-              main = "Cause of death",
-              horiz= TRUE, 
-              ylab = "Cause",
-              cex.names=1,
-              xlab = "Proportion",
-              col = '#00DD00',
-              border = 'white')
+      ggplot(zipsInBounds(),
+             aes(x = cause,
+                 fill = cause)) + 
+        geom_bar() + 
+        coord_flip() +
+        labs(x = "",
+             y = "Count") +
+        scale_fill_viridis_d() +
+        scale_x_discrete(limits = c("Unknown",
+                                    "Other",
+                                    "Vehicle",
+                                    "Tasered",
+                                    "Gunshot")
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none",
+              axis.text=element_text(size=14)) 
     } 
     
   })
@@ -234,33 +237,23 @@ function(input, output, session) {
                           radius=3, 
                           layerId=~name,                       
                           stroke=FALSE, 
-                          fillOpacity=0.4, 
+                          fillOpacity=0.8, 
                           fillColor='#000000',
                           label = ~name, 
                           group = 'person')
     } else {
       
       if (colorBy == "race") {
-      colorData <- factor(fatal$race)
+      colorData <- fatal$race
       
       } else if (colorBy == "cause") {
-        colorData <- factor(fatal$cause)
+        colorData <- fatal$cause
         
       } else if (colorBy == "sex") {
-        colorData <- factor(fatal$sex)
+        colorData <- fatal$sex
         
       } else if (colorBy == "age") {
-        colorData <- factor(fatal$agerng, 
-                            levels<-
-                              c("< 1 year","1 - 4 years", "5 - 9 years",
-                                "10 - 14 years","15 - 19 years",
-                                "20 - 24 years","25 - 34 years",
-                                "35 - 44 years","45 - 54 years",
-                                "55 - 64 years","65 - 74 years",
-                                "75 - 84 years","85+ years"
-                              )
-        )
-        
+        colorData <- fatal$agerng
       }
       
       pal <- colorFactor("viridis", 
@@ -277,7 +270,7 @@ function(input, output, session) {
                           radius=3, 
                           layerId=~name,                       
                           stroke=FALSE, 
-                          fillOpacity=0.4, 
+                          fillOpacity=0.8, 
                           fillColor=pal(colorData), 
                           label = ~name, 
                           group = 'person') 
