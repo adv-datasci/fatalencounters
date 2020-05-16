@@ -10,11 +10,11 @@ library(spatial)
 library(DT)
 
 vars <- c(
+  "None" = "none",
   "Race" = "race",
   "Gender" = "sex",
   "Age" = "age",
-  "Cause of death" = "cause",
-  "Year" = "year"
+  "Cause of death" = "cause"
 )
 
 rrraces <- c(
@@ -54,7 +54,9 @@ navbarPage("Fatal Encounters", id="nav",
                         ),
                         
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
-                        leafletOutput("map", width="100%", height="100%"),
+                        leafletOutput("map",
+                                      width="100%",
+                                      height="100%"),
                         
                         # Shiny versions prior to 0.11 should use class = "modal" instead.
                         absolutePanel(id = "controls",
@@ -65,27 +67,24 @@ navbarPage("Fatal Encounters", id="nav",
                                       left = "auto",
                                       right = 20, 
                                       bottom = "auto",
-                                      width = 330,
+                                      width = 600,
                                       height = "auto",
                                       
                                       #Title of the sidebar
                                       h3("Mapping Individual Deaths"),
                                       
                                       #Various icon inputs
-                                      selectInput("color", "Demographic selector", vars, selected = NULL),
+                                      selectInput("color", 
+                                                  "Demographic",
+                                                  vars, 
+                                                  selected = "none"),
                                       
-                                      #TO DO: Fix server.R so that this selector can work
+                                      #TODO: Fix server.R so that this selector can work
                                       # selectizeInput(
                                       #   'selectize',
                                       #   'Select values to display on map',
                                       #   choices = NULL, multiple = TRUE ##############
                                       # ),
-                                      
-                                      selectInput("hist", "Histogram variable", vars, selected = "adultpop"),
-                                      conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
-                                                       # Only prompt for threshold when coloring or sizing by superzip
-                                                       numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)
-                                      ),
                                       
                                       #Bar plots below the user interface
                                     
@@ -175,7 +174,7 @@ navbarPage("Fatal Encounters", id="nav",
 
            tabPanel("Data explorer",
                     
-                    dataTableOutput("ziptable")
+                    dataTableOutput("fe_table")
            ),
            
            conditionalPanel("false",

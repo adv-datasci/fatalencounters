@@ -7,7 +7,7 @@
 library(sp)
 library(rgeos)
 library(rgdal)
-library(maptools)
+# library(maptools)
 library(leaflet)
 library(leaflet.extras)
 library(RColorBrewer)
@@ -74,7 +74,8 @@ function(input, output, session) {
   observe({
     colorBy <- input$color
     if (colorBy == "race") {
-      updateSelectizeInput(session, "selectize",
+      updateSelectizeInput(session,
+                           "selectize",
                            choices=levels(factor(fatal$race)), selected=choices[selectionIndex], 
                            server = TRUE)
     } else if (colorBy == "sex") {
@@ -118,32 +119,44 @@ function(input, output, session) {
     }
   })
   
-  
+
+# Histogram ---------------------------------------------------------------
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
     # If no zipcodes are in view, don't plot
     if (nrow(zipsInBounds()) == 0)
       return(NULL)
-    if (input$hist == "race") {
-      barplot(prop.table(table(zipsInBounds()$race)),
-              main = "Race",
-              ylab = "Race",
-              cex.names=0.6,
-              horiz = TRUE,
-              xlab = "Proportion",
-              col = '#00DD00',
-              border = 'white')
-    } else if (input$hist == "sex") {
+    if (input$color == "race") {
+      ggplot(zipsInBounds(),
+             aes(x = race,
+                 fill = race)) + 
+        geom_bar() + 
+        coord_flip() +
+        labs(x = "",
+             y = "Count") +
+        scale_x_discrete(limits = c("White",
+                                    "Unknown",
+                                    "Native",
+                                    "Hispanic",
+                                    "Black",
+                                    "Asian"
+                                    )
+          ) +
+        scale_fill_viridis_d() +
+        theme_minimal() +
+        theme(legend.position = "none",
+              axis.text=element_text(size=14)) 
+    } else if (input$color == "sex") {
       barplot(prop.table(table(zipsInBounds()$sex)),
               #breaks = centileBreaks,
               main = "Gender",
               ylab = "Percentage",
-              cex.names=0.6,
+              cex.names=1,
               ylim = c(0,1),
               xlab = "Sex",
               col = '#00DD00',
               border = 'white')
-    } else if (input$hist == "age") {
+    } else if (input$color == "age") {
       barplot(prop.table(table(zipsInBounds()$agerng)),
               #breaks = centileBreaks,
               main = "Age range",
@@ -153,26 +166,17 @@ function(input, output, session) {
               xlab = "Proportion",
               col = '#00DD00',
               border = 'white')
-    } else if (input$hist == "cause") {
+    } else if (input$color == "cause") {
       barplot(prop.table(table(zipsInBounds()$cause)),
               #breaks = centileBreaks,
               main = "Cause of death",
               horiz= TRUE, 
               ylab = "Cause",
-              cex.names=0.6,
+              cex.names=1,
               xlab = "Proportion",
               col = '#00DD00',
               border = 'white')
-    } else if (input$hist == "year") {
-      barplot(prop.table(table(zipsInBounds()$year)),
-              #breaks = centileBreaks,
-              main = "Year breakdown of deaths",
-              ylab = "Percentage",
-              cex.names=0.6,
-              xlab = "Year",
-              col = '#00DD00',
-              border = 'white')
-    }
+    } 
     
   })
   
@@ -193,6 +197,9 @@ function(input, output, session) {
   #           border = 'white')
   # })
   
+
+# Update markers ----------------------------------------------------------
+  
   # This observer is responsible for maintaining the circles and legend,
   # according to the variables the user has chosen to map to color and size.
   observe({
@@ -209,53 +216,80 @@ function(input, output, session) {
     #cleantable<-subset(cleantable_unmodified, race %in% selectedFactors)
     #cleantable<-subset(cleantable_unmodified,paste(colorBy,'%in%','selectedFactors'))))
     
-    
     #custom_palette <-trimws(c("#8c510a ", "#d8b365 ", "#f6e8c3 ", "#c7eae5 ", "#5ab4ac ", "#01665e "))
-    
-    if (colorBy == "race") {
+    if (colorBy == "none") {
+      leafletProxy("map", 
+                   data = fatal) %>%
+        #leafletProxy("map") %>%
+        clearShapes() %>%
+        addCircleMarkers( ~lon, ~lat, 
+                          radius=3, 
+                          layerId=~name,                       
+                          stroke=FALSE, 
+                          fillOpacity=0.4, 
+                          fillColor='#000000',
+                          label = ~name, 
+                          group = 'person')
+    } else {
+      
+      if (colorBy == "race") {
       colorData <- factor(fatal$race)
-      pal <- colorFactor(palette = "Dark2", colorData)
+      pal <- colorFactor(palette = "viridis", 
+                         colorData)
       
       #Change this to specify each race as a more intuitive color?
       #pal <- c("black","white","yellow","brown","red", "orange", "green")
-    } else if (colorBy == "cause") {
-      colorData <- factor(fatal$cause)
-      pal <- colorFactor("Dark2", colorData)
+      } else if (colorBy == "cause") {
+        colorData <- factor(fatal$cause)
+        pal <- colorFactor("Dark2", colorData)
+        
+      } else if (colorBy == "sex") {
+        colorData <- factor(fatal$sex)
+        pal <- colorFactor("Dark2", colorData)
+        
+      } else if (colorBy == "age") {
+        colorData <- factor(fatal$agerng, 
+                            levels<-
+                              c("< 1 year","1 - 4 years", "5 - 9 years",
+                                "10 - 14 years","15 - 19 years",
+                                "20 - 24 years","25 - 34 years",
+                                "35 - 44 years","45 - 54 years",
+                                "55 - 64 years","65 - 74 years",
+                                "75 - 84 years","85+ years"
+                              )
+        )
+        
+        pal <- colorFactor("viridis", 
+                           colorData)
+        
+      }
       
-    } else if (colorBy == "sex") {
-      colorData <- factor(fatal$sex)
-      pal <- colorFactor("Dark2", colorData)
+      #output$table1 <- renderTable(df_subset())
       
-    } else if (colorBy == "age") {
-      colorData <- factor(fatal$agerng, 
-                          levels<-
-                            c("< 1 year","1 - 4 years", "5 - 9 years",
-                              "10 - 14 years","15 - 19 years",
-                              "20 - 24 years","25 - 34 years",
-                              "35 - 44 years","45 - 54 years",
-                              "55 - 64 years","65 - 74 years",
-                              "75 - 84 years","85+ years"
-                            )
-      )
-      
-      pal <- colorFactor("viridis", colorData)
-      
-    } else if (colorBy == "year") {
-      colorData <- factor(fatal$year)
-      pal <- colorFactor("Dark2", colorData)
-      
+      #Draws the map and adds the legend
+      leafletProxy("map", 
+                   data = fatal) %>%
+        #leafletProxy("map") %>%
+        clearShapes() %>%
+        addCircleMarkers( ~lon, ~lat, 
+                          radius=3, 
+                          layerId=~name,                       
+                          stroke=FALSE, 
+                          fillOpacity=0.4, 
+                          fillColor=pal(colorData), 
+                          label = ~name, 
+                          group = 'person') %>%
+        addLegend("bottomleft", 
+                  pal=pal, 
+                  values=colorData, 
+                  title=paste0(
+                    toupper(substring(colorBy, 1,1)),
+                    substring(colorBy, 2)
+                    ),
+                  layerId="colorLegend")
+    
     }
     
-    #output$table1 <- renderTable(df_subset())
-    
-    #Draws the map and adds the legend
-    leafletProxy("map", data = fatal) %>%
-      #leafletProxy("map") %>%
-      clearShapes() %>%
-      addCircleMarkers( ~lon, ~lat, radius=3, layerId=~name,                       
-                        stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData), label = ~name, group = 'person') %>%
-      addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
-                layerId="colorLegend")
   })
   
   showZipcodePopup <- function(name, lat, lng) {
@@ -348,8 +382,6 @@ function(input, output, session) {
     })
   })
   
-  ###########################
-  
   # Data Explorer ###########################################
   
   observe({
@@ -393,15 +425,10 @@ function(input, output, session) {
     })
   })
   
-  output$ziptable <- DT::renderDataTable({
+  output$fe_table <- DT::renderDataTable({
     
     df <- fatal %>%
       arrange(desc(date)) %>%
-      filter(
-        is.null(input$states) | state %in% input$states,
-        is.null(input$cities) | city %in% input$cities,
-        is.null(input$zipcodes) | zipcode %in% input$zipcodes
-      ) %>%
       mutate(img = ifelse(!is.na(url_name),
                             paste("<img src='", 
                                   url_name,
@@ -457,7 +484,3 @@ function(input, output, session) {
   )
   
 }
-
-
-
-

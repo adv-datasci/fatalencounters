@@ -7,7 +7,6 @@
 # Setup -------------------------------------------------------------------
 
 library(tidyverse)
-library(ggplot2)
 
 # Data clean --------------------------------------------------------------
 
@@ -70,14 +69,14 @@ fatal$age[fatal$age == 0] <- "Unknown"
 
 # Race
 unique(fatal$race)
-fatal$race[fatal$race == "European American/White"] <- "European-American/White"
 fatal$race[is.na(fatal$race)] <- "Unknown"
-fatal$race[fatal$race == "Race unspecified"] <- "Unknown"
+fatal$race[fatal$race == "Race unspecified" | fatal$race == "Other Race"] <- "Unknown"
 
 fatal$race[fatal$race == "Native American/Alaskan"] <- "Native"
 fatal$race[fatal$race == "Middle Eastern"] <- "White"
-fatal$race[fatal$race == "Hispanic/Latino"] <- "Hispanic"
-fatal$race[fatal$race == "European-American/White"] <- "White"
+fatal$race[fatal$race == "Hispanic/Latino" | fatal$race == "HIspanic/Latino"] <- "Hispanic"
+fatal$race[fatal$race == "European-American/White" |
+             fatal$race == "European American/White"] <- "White"
 fatal$race[fatal$race == "Asian/Pacific Islander"] <- "Asian"
 fatal$race[fatal$race == "African-American/Black"] <- "Black"
 
