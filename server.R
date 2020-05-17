@@ -336,7 +336,7 @@ function(input, output, session) {
       sprintf("Sex: %s", selectedZip$sex), tags$br(),
       sprintf("Age: %s", selectedZip$age), tags$br(),
       sprintf("Race: %s", selectedZip$race), tags$br(),
-      sprintf("Cause of death: %s", selectedZip$cause),
+      sprintf("Cause of death: %s", selectedZip$cause), tags$br(),
       sprintf("Year: %s", selectedZip$year)
     ))
     leafletProxy("map") %>% addPopups(lng, lat, content, layerId = name)

@@ -83,7 +83,7 @@ navbarPage("Fatal Encounters",
                                       left = "auto",
                                       right = 20, 
                                       bottom = "auto",
-                                      width = 600,
+                                      width = 500,
                                       height = "auto",
                                       
                                       #Title of the sidebar
