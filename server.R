@@ -50,7 +50,7 @@ function(input, output, session) {
   })
   
 
-# Reactive data -----------------------------------------------------------
+# Death maps reactive data --------------------------------------------------
   
   ###
   ## Year range subset
@@ -139,7 +139,7 @@ function(input, output, session) {
   # })
   
 
-# Histogram ---------------------------------------------------------------
+# Histograms ---------------------------------------------------------------
   
   #Output histograms in the user interface
   output$plot1 <- renderPlot({
@@ -218,11 +218,10 @@ function(input, output, session) {
   ## Update markers according to year selection
   
   observe({
-    years <- input$range
-    leafletProxy("map",
-                 data = fatal) %>%
+    # years <- input$range
+    leafletProxy("map") %>%
       #leafletProxy("map") %>%
-      clearShapes() %>%
+      clearMarkers() %>%
       addCircleMarkers( ~lon, ~lat,
                         data = year_fatal(),
                         radius=3,
@@ -359,8 +358,9 @@ function(input, output, session) {
     })
   })
   
-  ############ Heat map ###############
-  
+
+# Heat map ----------------------------------------------------------------
+
   # Merge spatial df with downloaded ddata.
   leafmap <-readRDS(file.path("data",
                               "processed_data",
@@ -424,7 +424,7 @@ function(input, output, session) {
     })
   })
   
-  # Data Explorer ###########################################
+  # Data Explorer -----------------------------------------------------------
   
   observe({
     cities <- if (is.null(input$states)) character(0) else {
