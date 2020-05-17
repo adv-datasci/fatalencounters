@@ -96,7 +96,7 @@ navbarPage("Fatal Encounters",
                                       height = "auto",
                                       
                                       #Title of the sidebar
-                                      h3("Mapping Individual Deaths\n"),
+                                      h3("Fatal Encounters with Police\n"),
                                       
                                       # Input: Specification of range within an interval
                                       sliderInput("range", "Years:",
