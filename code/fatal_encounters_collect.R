@@ -22,3 +22,5 @@ fatal <- gs_read(fatal_encounters_url) %>%
 
 # fatal <- read.csv("~/adsterm2/Term2Proj/data/fatal.csv",
 #                   stringsAsFactors = FALSE)
+
+rm(fatal_encounters_url)

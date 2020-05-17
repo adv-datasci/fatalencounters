@@ -14,7 +14,7 @@ library(RColorBrewer)
 library(scales)
 library(lattice)
 library(tidyverse)
-library(ggplot2)
+library(DT)
 
 function(input, output, session) {
 
@@ -88,17 +88,17 @@ function(input, output, session) {
   # nValues <- 1002
   # choices <- as.character(1:nValues)
   # selectionIndex <- 1000
-  
+  # 
   # observe({
   #   colorBy <- input$color
   #   if (colorBy == "race") {
   #     updateSelectizeInput(session,
   #                          "selectize",
-  #                          choices=levels(factor(fatal$race)), selected=choices[selectionIndex], 
+  #                          choices=levels(factor(fatal$race)), selected=choices[selectionIndex],
   #                          server = TRUE)
   #   } else if (colorBy == "sex") {
   #     updateSelectizeInput(session, "selectize",
-  #                          choices=levels(factor(fatal$sex)), selected=choices[selectionIndex], 
+  #                          choices=levels(factor(fatal$sex)), selected=choices[selectionIndex],
   #                          server = TRUE)
   #   } else if (colorBy == "age") {
   #     updateSelectizeInput(session, "selectize",
@@ -115,20 +115,20 @@ function(input, output, session) {
   #                                    "65 - 74 years",
   #                                    "75 - 84 years",
   #                                    "85+ years"
-  #                          ), 
-  #                          selected=choices[selectionIndex], 
+  #                          ),
+  #                          selected=choices[selectionIndex],
   #                          server = TRUE)
   #   } else if (colorBy == "cause") {
   #     updateSelectizeInput(session, "selectize",
-  #                          choices=levels(factor(fatal$cause)), selected=choices[selectionIndex], 
+  #                          choices=levels(factor(fatal$cause)), selected=choices[selectionIndex],
   #                          server = TRUE)
   #   }
   # })
-  
-  
+  # 
+  # 
   # subsetData <- reactive({
   #   selected<-input$selectize
-  #   
+  # 
   #   if (is.na(selected)){
   #     return(fatal)
   #   } else {
@@ -361,41 +361,85 @@ function(input, output, session) {
 
 # Heat map ----------------------------------------------------------------
 
+  ## OLD DATA
   # Merge spatial df with downloaded ddata.
-  leafmap <-readRDS(file.path("data",
-                              "processed_data",
-                              "heatmap_data3.RDS"))
+  # leafmap <-readRDS(file.path("data",
+  #                             "processed_data",
+  #                             "heatmap_data_OLD.RDS"))
   
-  # rrcolorData <- leafmap$pminusdratio
-  # pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
+  ## Initial setup MOVED TO GLOBAL
+  # leafmap <-readRDS(file.path("data",
+  #                             "processed_data",
+  #                             "heatmap_data.RDS"))
+  
+  rrcolorData <- leafmap$death_rate
+  pal <- colorNumeric("YlOrRd",
+                      leafmap$death_rate,
+                      na.color = "transparent")
+  
+  # pal <- colorQuantile("YlOrRd",
+  #                      unique(leafmap$death_rate),
+  #                      n = 6)
+  
+  # Format popup data for leaflet map.
+  popup_dat <- paste0("<strong>County: </strong>",
+                      leafmap$NAME,
+                      "<br><strong>Deaths / 10000: </strong>",
+                      round(rrcolorData, 2))
   
   binz <- c(0, 0.5, 0.99, 1.5, 2, 4, 8, 16, Inf)
-  
+
   observe({
     rrBy <- input$rr
-    
-    if (rrBy == "pminusdratio") {
-      rrcolorData <- leafmap$pminusdratio
-      pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6, na.color = "transparent")
+
+    if (rrBy == "death_rate") {
+      rrcolorData <- leafmap$death_rate
+      # pal <- colorQuantile("YlOrRd",
+      #                      unique(leafmap$death_rate),
+      #                      n = 6,
+      #                      na.color = "transparent")
+      pal <- colorBin("YlOrRd",
+                      leafmap$death_rate,
+                      bins = c(0, 2, 4, 6, 8, 10, Inf),
+                      na.color = "transparent")
+      # Format popup data for leaflet map.
+      popup_dat <- paste0("<strong>County: </strong>",
+                          leafmap$NAME,
+                          "<br><strong>Deaths / 10000: </strong>",
+                          round(rrcolorData, 2))
     } else if (rrBy == "blackrr") {
       rrcolorData <- leafmap$blackrr
       pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
+      # Format popup data for leaflet map.
+      popup_dat <- paste0("<strong>County: </strong>",
+                          leafmap$NAME,
+                          "<br><strong>Relative Risk: </strong>",
+                          round(rrcolorData, 2))
     } else if (rrBy == "hisprr") {
       rrcolorData <- leafmap$hisprr
       pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
+      popup_dat <- paste0("<strong>County: </strong>",
+                          leafmap$NAME,
+                          "<br><strong>Relative Risk: </strong>",
+                          round(rrcolorData, 2))
     } else if (rrBy == "nativerr") {
       rrcolorData <- leafmap$nativerr
       pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
+      popup_dat <- paste0("<strong>County: </strong>",
+                          leafmap$NAME,
+                          "<br><strong>Relative Risk: </strong>",
+                          round(rrcolorData, 2))
     } else if (rrBy == "asianrr") {
       rrcolorData <- leafmap$asianrr
-      pal <- colorBin("YlOrRd", rrcolorData, bins = binz, na.color = "transparent")
-    } 
-    
-    # Format popup data for leaflet map.
-    popup_dat <- paste0("<strong>County: </strong>",
-                        leafmap$NAME,
-                        "<br><strong>Risk: </strong>",
-                        round(rrcolorData, 2))
+      pal <- colorBin("YlOrRd",
+                      rrcolorData, 
+                      bins = binz, 
+                      na.color = "transparent")
+      popup_dat <- paste0("<strong>County: </strong>",
+                          leafmap$NAME,
+                          "<br><strong>Relative Risk: </strong>",
+                          round(rrcolorData, 2))
+    }
     
     # Create the map
     output$heatmap <- renderLeaflet({
@@ -409,11 +453,11 @@ function(input, output, session) {
                     popup = popup_dat,
                     label = ~NAME,
                     group = 'counties') %>%
-        setView(lng = -93.85, lat = 37.45, zoom = 4) %>%
+        setView(lng = -93.85, lat = 37.45, zoom = 5) %>%
         addLegend("bottomleft",
                   pal=pal, 
                   values=rrcolorData, 
-                  title= 'Relative Risk',
+                  title= 'Risk',
                   layerId="riskLegend") %>%
         addSearchFeatures(
           targetGroups  = 'counties',
@@ -472,24 +516,24 @@ function(input, output, session) {
     df <- fatal %>%
       arrange(desc(date)) %>%
       mutate(img = ifelse(!is.na(url_name),
-                            paste("<img src='", 
-                                  url_name,
-                                  "' height=",
-                                  "'100'></img>",
-                                  sep=""),
-                            NA),
+                          paste("<img src='", 
+                                url_name,
+                                "' height=",
+                                "'100'></img>",
+                                sep=""),
+                          NA),
              source = paste("<a href='",
-                                   news_link,
-                                   "'>Link</a>",
-                                   sep="")
-             )
+                            news_link,
+                            "'>Link</a>",
+                            sep="")
+      )
     
     
-      
     
-  #TODO: Allows user to go to selected row on the interactive map
-  #  Needs to be fixed
-  #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
+    
+    #TODO: Allows user to go to selected row on the interactive map
+    #  Needs to be fixed
+    #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
     
     df<-df %>%
       select(
@@ -508,13 +552,15 @@ function(input, output, session) {
         "Disposition" = official_description,
         "Source" = source
       )
-
-  
-  #TODO: Fix this line; supposed to go to the relevant dot on the map
-      #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
-    action <- DT::dataTableAjax(session, df)
     
-    DT::datatable(df, options = list(ajax = list(url = action)), escape = FALSE)
+    
+    #TODO: Fix this line; supposed to go to the relevant dot on the map
+    #mutate(Action = paste('<a class="go-map" href="" data-lat="', lat, '" data-long="', long, '" data-zip="', zipcode, '"><i class="fa fa-crosshairs"></i></a>', sep=""))
+    # action <- DT::dataTableAjax(session, df)
+    
+    DT::datatable(df, 
+                  # options = list(ajax = list(url = action)), 
+                  escape = FALSE)
   }
   #TODO: Has no effect, but should make description column wider
   #,

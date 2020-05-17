@@ -12,3 +12,8 @@ source(file.path("code",
 source(file.path("code",
                  "fatal_encounters_clean.R")
        )
+
+## Read heatmap data
+leafmap <-readRDS(file.path("data",
+                            "processed_data",
+                            "heatmap_data.RDS"))

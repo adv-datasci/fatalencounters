@@ -18,12 +18,21 @@ vars <- c(
 )
 
 rrraces <- c(
-  "None" = "pminusdratio",
+  "None" = "death_rate",
   "Black vs. White" = "blackrr",
   "Hispanic vs. White" = "hisprr",
   "Native vs. White" = "nativerr",
   "Asian vs. White" = "asianrr"
 )
+
+## OLD
+# rrraces <- c(
+#   "None" = "pminusdratio",
+#   "Black vs. White" = "blackrr",
+#   "Hispanic vs. White" = "hisprr",
+#   "Native vs. White" = "nativerr",
+#   "Asian vs. White" = "asianrr"
+# )
 
 
 # App ---------------------------------------------------------------------
@@ -162,16 +171,18 @@ navbarPage("Fatal Encounters",
                                       h3("Risk Map"),
                                       
                                       # Descriptive text
-                                      h5("Initial display is rank percentile of relative risk of police-involved death from 2000-2015, controlled for population."),
+                                      h5("Initial display is deaths per 10,000 county population, according to 2010 US Census data."),
+                                      
+                                      h4("Relative Risk"),
                                       
                                       # RR selector
                                       selectInput("rr",
                                                   "Relative Risk by Race",
                                                   rrraces,
                                                   selected = "None"),
-                                      
                                       # Descriptive text
-                                      h5("Relative risks are computed using white race as the comparison."),
+                                      h5("Relative risks compare death rates between decedents by race, when known."),
+                                      h5("White race is always the reference group."),
                                       h5("For counties to display data, data must be available for both race groups.")
                                     
                                       ),
@@ -202,10 +213,9 @@ navbarPage("Fatal Encounters",
 
 
            tabPanel("Data explorer",
-                    
                     dataTableOutput("fe_table")
-           ),
+                    )
            
-           conditionalPanel("false",
-                            icon("crosshair"))
+           # conditionalPanel("false",
+           #                  icon("crosshair"))
 )
