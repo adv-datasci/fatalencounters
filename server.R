@@ -39,9 +39,9 @@ function(input, output, session) {
                        label = ~name, 
                        group = 'person') %>%
       ## Removing search--not working correctly
-      # addSearchFeatures(
-      #   targetGroups = 'person',
-      #   options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
+      addSearchFeatures(
+        targetGroups = 'person',
+        options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
       addResetMapButton() %>%
       ### Removing search option info
       # addControl("<P>You may search by a person's name.</P>",
