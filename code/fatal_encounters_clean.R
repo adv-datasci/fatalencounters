@@ -7,6 +7,7 @@
 # Setup -------------------------------------------------------------------
 
 library(tidyverse)
+library(lubridate)
 
 ## Run fatal_encounters_collect.R first
 # source(here::here("code",
@@ -29,7 +30,7 @@ fatal <- fatal %>%
          description = a_brief_description_of_the_circumstances_surrounding_the_death,
          official_description = dispositions_exclusions_internal_use_not_for_analysis,
          news_link = link_to_news_article_or_photo_of_official_document,
-         address = location_of_injury_address,
+         # address = location_of_injury_address,
          city = location_of_death_city,
          county = location_of_death_county,
          state = location_of_death_state,
@@ -41,6 +42,17 @@ fatal <- fatal %>%
          mental_ill = symptoms_of_mental_illness_internal_use_not_for_analysis,
          year = date_year
   )
+
+# Date
+fatal <- fatal %>%
+  mutate(date = as.Date(date,
+                        format = "%m/%d/%Y"))
+
+# Year
+fatal <- fatal %>%
+  mutate(year = ifelse(is.na(year),
+                       year(date),
+                       year))
 
 # Age
 unique_ages <- fatal %>% 
@@ -163,7 +175,3 @@ fatal$easy[fatal$agerng == "Unknown"] <- F
 # Create new datasets for easy and not easy 
 fataleasy <- subset(fatal, easy == T)
 fatalnoteasy <- subset(fatal, easy == F)
-
-###
-### year
-###

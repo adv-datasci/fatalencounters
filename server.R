@@ -43,10 +43,14 @@ function(input, output, session) {
       #   targetGroups = 'person',
       #   options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
       addResetMapButton() %>%
-      addControl("<P>You may search by a person's name.</P>",
-                 position='bottomright') %>% 
+      ### Removing search option info
+      # addControl("<P>You may search by a person's name.</P>",
+      #            position='bottomright') %>% 
       setView(lng = -93.85, lat = 37.45, zoom = 4)
   })
+  
+
+# Reactive data -----------------------------------------------------------
   
   ###
   ## Year range subset
@@ -61,8 +65,9 @@ function(input, output, session) {
              year <= year_rng_end)
   })
   
-  # A reactive expression that returns the set of zips that are
-  # in bounds right now
+  ###
+  ## Data in view
+  ###
   
   zipsInBounds <- reactive({
     if (is.null(input$map_bounds))
@@ -76,62 +81,62 @@ function(input, output, session) {
              lon >= lngRng[1] & lon <= lngRng[2])
   })
 
-# Variables for mapping ---------------------------------------------------
+# OLD MAYBE DELETE ---------------------------------------------------
 
   #updateSelectizeInput(session, "selectize", choices=levels(factor(cleantable$race)), selected=choices[selectionIndex], 
   #                     server = TRUE)
-  nValues <- 1002
-  choices <- as.character(1:nValues)
-  selectionIndex <- 1000
+  # nValues <- 1002
+  # choices <- as.character(1:nValues)
+  # selectionIndex <- 1000
   
-  observe({
-    colorBy <- input$color
-    if (colorBy == "race") {
-      updateSelectizeInput(session,
-                           "selectize",
-                           choices=levels(factor(fatal$race)), selected=choices[selectionIndex], 
-                           server = TRUE)
-    } else if (colorBy == "sex") {
-      updateSelectizeInput(session, "selectize",
-                           choices=levels(factor(fatal$sex)), selected=choices[selectionIndex], 
-                           server = TRUE)
-    } else if (colorBy == "age") {
-      updateSelectizeInput(session, "selectize",
-                           choices=c("< 1 year",
-                                     "1 - 4 years",
-                                     "5 - 9 years",
-                                     "10 - 14 years",
-                                     "15 - 19 years",
-                                     "20 - 24 years",
-                                     "25 - 34 years",
-                                     "35 - 44 years",
-                                     "45 - 54 years",
-                                     "55 - 64 years",
-                                     "65 - 74 years",
-                                     "75 - 84 years",
-                                     "85+ years"
-                           ), 
-                           selected=choices[selectionIndex], 
-                           server = TRUE)
-    } else if (colorBy == "cause") {
-      updateSelectizeInput(session, "selectize",
-                           choices=levels(factor(fatal$cause)), selected=choices[selectionIndex], 
-                           server = TRUE)
-    }
-  })
+  # observe({
+  #   colorBy <- input$color
+  #   if (colorBy == "race") {
+  #     updateSelectizeInput(session,
+  #                          "selectize",
+  #                          choices=levels(factor(fatal$race)), selected=choices[selectionIndex], 
+  #                          server = TRUE)
+  #   } else if (colorBy == "sex") {
+  #     updateSelectizeInput(session, "selectize",
+  #                          choices=levels(factor(fatal$sex)), selected=choices[selectionIndex], 
+  #                          server = TRUE)
+  #   } else if (colorBy == "age") {
+  #     updateSelectizeInput(session, "selectize",
+  #                          choices=c("< 1 year",
+  #                                    "1 - 4 years",
+  #                                    "5 - 9 years",
+  #                                    "10 - 14 years",
+  #                                    "15 - 19 years",
+  #                                    "20 - 24 years",
+  #                                    "25 - 34 years",
+  #                                    "35 - 44 years",
+  #                                    "45 - 54 years",
+  #                                    "55 - 64 years",
+  #                                    "65 - 74 years",
+  #                                    "75 - 84 years",
+  #                                    "85+ years"
+  #                          ), 
+  #                          selected=choices[selectionIndex], 
+  #                          server = TRUE)
+  #   } else if (colorBy == "cause") {
+  #     updateSelectizeInput(session, "selectize",
+  #                          choices=levels(factor(fatal$cause)), selected=choices[selectionIndex], 
+  #                          server = TRUE)
+  #   }
+  # })
   
   
-  subsetData <- reactive({
-    selected<-input$selectize
-    
-    if (is.na(selected)){
-      return(fatal)
-    } else {
-      a <- subset(fatal,
-                  category == selected)
-      return(a)
-    }
-  })
+  # subsetData <- reactive({
+  #   selected<-input$selectize
+  #   
+  #   if (is.na(selected)){
+  #     return(fatal)
+  #   } else {
+  #     a <- subset(fatal,
+  #                 category == selected)
+  #     return(a)
+  #   }
+  # })
   
 
 # Histogram ---------------------------------------------------------------
