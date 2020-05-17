@@ -163,3 +163,7 @@ fatal$easy[fatal$agerng == "Unknown"] <- F
 # Create new datasets for easy and not easy 
 fataleasy <- subset(fatal, easy == T)
 fatalnoteasy <- subset(fatal, easy == F)
+
+###
+### year
+###

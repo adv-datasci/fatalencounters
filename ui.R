@@ -28,7 +28,12 @@ rrraces <- c(
 
 # App ---------------------------------------------------------------------
 
-navbarPage("Fatal Encounters", id="nav",
+navbarPage("Fatal Encounters", 
+           
+           
+           
+           id="nav",
+           theme = shinythemes::shinytheme("cosmo"),
            
            tabPanel("Intro",
                     fluidPage(
@@ -38,6 +43,17 @@ navbarPage("Fatal Encounters", id="nav",
                     )
            ),
            
+           ## Change slider color
+           # tags$head(tags$style(HTML('.js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
+           #                                        background: red;
+           #                                        border-top: 1px solid #000039 ;
+           #                                        border-bottom: 1px solid #000039 ;}
+           # 
+           #                  /* changes the colour of the number tags */
+           #                 .irs-from, .irs-to, .irs-single { background: red }'
+           #                           )
+           #                      )
+           #           ),
 
 # Deaths map --------------------------------------------------------------
 
@@ -71,7 +87,20 @@ navbarPage("Fatal Encounters", id="nav",
                                       height = "auto",
                                       
                                       #Title of the sidebar
-                                      h3("Mapping Individual Deaths"),
+                                      h3("Mapping Individual Deaths\n"),
+                                      
+                                      # Input: Specification of range within an interval
+                                      sliderInput("range", "Years:",
+                                                  min = min(fatal$year, na.rm = T),
+                                                  max = max(fatal$year, na.rm = T),
+                                                  value = c(min(fatal$year, na.rm = T),
+                                                            max(fatal$year, na.rm = T)),
+                                                  step = 1,
+                                                  width = "100%",
+                                                  ticks = FALSE,
+                                                  sep = "",
+                                                  dragRange = FALSE
+                                                  ),
                                       
                                       #Various icon inputs
                                       selectInput("color", 

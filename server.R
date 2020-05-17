@@ -18,14 +18,15 @@ library(ggplot2)
 
 function(input, output, session) {
 
-# Deaths map --------------------------------------------------------------
+# Base deaths map -----------------------------------------------------------
   
   # Create the map
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles(
-        urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-        attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+        # urlTemplate = "//stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png"
+        urlTemplate = "//{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       ) %>%
       addCircleMarkers(data = fatal,
                        ~lon,
@@ -34,16 +35,30 @@ function(input, output, session) {
                        layerId=~name,                       
                        stroke=FALSE, 
                        fillOpacity=0.8, 
-                       fillColor='#000000',
+                       fillColor='#f5f5f5',
                        label = ~name, 
                        group = 'person') %>%
-      addSearchFeatures(
-        targetGroups  = 'person',
-        options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
+      ## Removing search--not working correctly
+      # addSearchFeatures(
+      #   targetGroups = 'person',
+      #   options = searchFeaturesOptions(zoom=10, openPopup=TRUE)) %>%
       addResetMapButton() %>%
       addControl("<P>You may search by a person's name.</P>",
                  position='bottomright') %>% 
       setView(lng = -93.85, lat = 37.45, zoom = 4)
+  })
+  
+  ###
+  ## Year range subset
+  ###
+  
+  year_fatal <- reactive({
+    year_rng_start <- input$range[1]
+    year_rng_end <- input$range[2]
+    
+    subset(fatal,
+           year >= year_rng_start &
+             year <= year_rng_end)
   })
   
   # A reactive expression that returns the set of zips that are
@@ -56,15 +71,13 @@ function(input, output, session) {
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
     
-    subset(fatal,
+    subset(year_fatal(),
            lat >= latRng[1] & lat <= latRng[2] &
              lon >= lngRng[1] & lon <= lngRng[2])
   })
-  
-  #################
-  #Select variables to include in map
-  #################
-  
+
+# Variables for mapping ---------------------------------------------------
+
   #updateSelectizeInput(session, "selectize", choices=levels(factor(cleantable$race)), selected=choices[selectionIndex], 
   #                     server = TRUE)
   nValues <- 1002
@@ -97,8 +110,8 @@ function(input, output, session) {
                                      "65 - 74 years",
                                      "75 - 84 years",
                                      "85+ years"
-                           )
-                           , selected=choices[selectionIndex], 
+                           ), 
+                           selected=choices[selectionIndex], 
                            server = TRUE)
     } else if (colorBy == "cause") {
       updateSelectizeInput(session, "selectize",
@@ -191,28 +204,32 @@ function(input, output, session) {
     
   })
   
-  # output$plot2 <- renderPlot({
-  #   # If no zipcodes are in view, don't plot
-  #   if (nrow(zipsInBounds()) == 0)
-  #     return(NULL)
-  #   
-  #   barplot(prop.table(table(zipsInBounds()$cause)),
-  #           #breaks = centileBreaks
-  #           main = "Cause of death",
-  #           ylab = "Percentage",
-  #           cex.names=0.8,
-  #           ylim = c(0,1),
-  #           xlab = "Cause of death",
-  #           #xlim = range(allzips$centile),
-  #           col = '#00DD00',
-  #           border = 'white')
-  # })
-  
 
 # Update markers ----------------------------------------------------------
   
   # This observer is responsible for maintaining the circles and legend,
   # according to the variables the user has chosen to map to color and size.
+  
+  ## Update markers according to year selection
+  
+  observe({
+    years <- input$range
+    leafletProxy("map",
+                 data = fatal) %>%
+      #leafletProxy("map") %>%
+      clearShapes() %>%
+      addCircleMarkers( ~lon, ~lat,
+                        data = year_fatal(),
+                        radius=3,
+                        layerId=~name,
+                        stroke=FALSE,
+                        fillOpacity=0.8,
+                        fillColor='#f5f5f5',
+                        label = ~name,
+                        group = 'person')
+                        
+  })
+  
   observe({
     colorBy <- input$color
     #selectedFactors<-input$selectize
@@ -232,13 +249,14 @@ function(input, output, session) {
       leafletProxy("map", 
                    data = fatal) %>%
         #leafletProxy("map") %>%
-        clearShapes() %>%
+        clearMarkers() %>%
         addCircleMarkers( ~lon, ~lat, 
+                          data = year_fatal(),
                           radius=3, 
                           layerId=~name,                       
                           stroke=FALSE, 
                           fillOpacity=0.8, 
-                          fillColor='#000000',
+                          fillColor='#f5f5f5',
                           label = ~name, 
                           group = 'person')
     } else {
@@ -265,8 +283,9 @@ function(input, output, session) {
       leafletProxy("map", 
                    data = fatal) %>%
         #leafletProxy("map") %>%
-        clearShapes() %>%
+        clearMarkers() %>%
         addCircleMarkers( ~lon, ~lat, 
+                          data = year_fatal(),
                           radius=3, 
                           layerId=~name,                       
                           stroke=FALSE, 
@@ -291,16 +310,34 @@ function(input, output, session) {
   })
   
   showZipcodePopup <- function(name, lat, lng) {
-    selectedZip <- fatal[fatal$name == name,]
+    
+    ## Prepare selection
+    selectedZip <- fatal[fatal$name == name,] %>% 
+      mutate(img = ifelse(!is.na(url_name),
+                          paste("<center><img src='", 
+                                url_name,
+                                "' height=",
+                                "'100'></img></center>",
+                                sep=""),
+                          "No image on file"),
+             source = paste("<a href='",
+                            news_link,
+                            "'>Link</a>",
+                            sep="")
+      )
+    
+    ## Display
     content <- as.character(tagList(
-      tags$strong("Name:", selectedZip$name),tags$br(),
+      tags$strong(selectedZip$name),tags$br(),
+      HTML(selectedZip$img), tags$br(),
       sprintf("%s, %s %s",
               selectedZip$city, selectedZip$state, selectedZip$zipcode
       ), tags$br(),
       sprintf("Sex: %s", selectedZip$sex), tags$br(),
       sprintf("Age: %s", selectedZip$age), tags$br(),
       sprintf("Race: %s", selectedZip$race), tags$br(),
-      sprintf("Cause of death: %s", selectedZip$cause)
+      sprintf("Cause of death: %s", selectedZip$cause),
+      sprintf("Year: %s", selectedZip$year)
     ))
     leafletProxy("map") %>% addPopups(lng, lat, content, layerId = name)
   }
@@ -320,7 +357,9 @@ function(input, output, session) {
   ############ Heat map ###############
   
   # Merge spatial df with downloaded ddata.
-  leafmap <-readRDS(file.path("data","processed_data","heatmap_data3.RDS"))
+  leafmap <-readRDS(file.path("data",
+                              "processed_data",
+                              "heatmap_data3.RDS"))
   
   # rrcolorData <- leafmap$pminusdratio
   # pal <- colorQuantile("YlOrRd", unique(leafmap$pminusdratio), n = 6)
@@ -357,9 +396,9 @@ function(input, output, session) {
     output$heatmap <- renderLeaflet({
       # Render final map in leaflet.
       leaflet(data = leafmap) %>%
-        addTiles() %>%
+        addTiles(urlTemplate = "//{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png") %>%
         addPolygons(fillColor = ~pal(rrcolorData),
-                    fillOpacity = 0.8,
+                    fillOpacity = 0.6,
                     color = "#BDBDC3",
                     weight = 1,
                     popup = popup_dat,
