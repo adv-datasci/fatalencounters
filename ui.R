@@ -43,17 +43,17 @@ navbarPage("Fatal Encounters",
                     )
            ),
            
-           ## Change slider color
-           # tags$head(tags$style(HTML('.js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
-           #                                        background: red;
-           #                                        border-top: 1px solid #000039 ;
-           #                                        border-bottom: 1px solid #000039 ;}
-           # 
-           #                  /* changes the colour of the number tags */
-           #                 .irs-from, .irs-to, .irs-single { background: red }'
-           #                           )
-           #                      )
-           #           ),
+           # Change slider color
+           tags$head(tags$style(HTML('.js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
+                                                  background: black;
+                                                  border-top: 1px solid #000039 ;
+                                                  border-bottom: 1px solid #000039 ;}
+
+                            /* changes the colour of the number tags */
+                           .irs-from, .irs-to, .irs-single { background: black }'
+                                     )
+                                )
+                     ),
 
 # Deaths map --------------------------------------------------------------
 
