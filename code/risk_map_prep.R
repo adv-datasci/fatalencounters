@@ -7,9 +7,7 @@
 library(tidyverse)
 library(readxl)
 library(janitor)
-
 library(rgdal)
-library(Hmisc)
 library(DT)
 
 ## Read in fatal dataset

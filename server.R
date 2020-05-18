@@ -4,15 +4,8 @@
 
 # Setup -------------------------------------------------------------------
 
-library(sp)
-library(rgeos)
-library(rgdal)
-# library(maptools)
 library(leaflet)
 library(leaflet.extras)
-library(RColorBrewer)
-library(scales)
-library(lattice)
 library(tidyverse)
 library(DT)
 

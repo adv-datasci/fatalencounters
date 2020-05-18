@@ -6,8 +6,8 @@
 # Setup -------------------------------------------------------------------
 
 library(leaflet)
-library(spatial)
 library(DT)
+
 # library(metathis)
 
 vars <- c(
