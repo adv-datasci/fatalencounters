@@ -8,6 +8,7 @@
 library(leaflet)
 library(spatial)
 library(DT)
+library(metathis)
 
 vars <- c(
   "None" = "none",
@@ -40,13 +41,27 @@ rrraces <- c(
 navbarPage("Fatal Encounters", 
            id="nav",
            theme = shinythemes::shinytheme("cosmo"),
+           
+           ## Intro
            tabPanel("Intro",
                     fluidPage(
                       div(id = "about", 
                           class = "card",  
                           includeMarkdown("./about.Rmd"),
-                          # Social media image
-                          tags$head(HTML('<meta property="og:image" content="share.jpg">'))
+                          
+                          ## Meta
+                          meta() %>%
+                            meta_social(
+                              title = "Police Fatal Encounters Visualization by kbmorales",
+                              description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
+                              url = "https://jhubiostatistics.shinyapps.io/policeviolence/",
+                              image = "share.jpg",
+                              image_alt = "Map of individual police-involved deaths",
+                              twitter_card_type = "summary"
+                            )
+                          
+                          # # Social media image
+                          # tags$head(HTML('<meta property="og:image" content="share.jpg">'))
                       )
                     )
            ),
