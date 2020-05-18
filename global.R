@@ -15,5 +15,4 @@ source(file.path("code",
 
 ## Read heatmap data
 leafmap <-readRDS(file.path("data",
-                            "processed_data",
                             "heatmap_data.RDS"))
