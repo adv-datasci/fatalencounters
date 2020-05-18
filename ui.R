@@ -38,31 +38,18 @@ rrraces <- c(
 # App ---------------------------------------------------------------------
 
 navbarPage("Fatal Encounters", 
-           
-           
-           
            id="nav",
            theme = shinythemes::shinytheme("cosmo"),
-           
            tabPanel("Intro",
                     fluidPage(
-                      div(id = "about", class = "card",  
-                          includeMarkdown("./about.Rmd")
+                      div(id = "about", 
+                          class = "card",  
+                          includeMarkdown("./about.Rmd"),
+                          # Social media image
+                          tags$head(HTML('<meta property="og:image" content="share.jpg">'))
                       )
                     )
            ),
-           
-           # Change slider color
-           tags$head(tags$style(HTML('.js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
-                                                  background: black;
-                                                  border-top: 1px solid #000039 ;
-                                                  border-bottom: 1px solid #000039 ;}
-
-                            /* changes the colour of the number tags */
-                           .irs-from, .irs-to, .irs-single { background: black }'
-                                     )
-                                )
-                     ),
 
 # Deaths map --------------------------------------------------------------
 
@@ -77,6 +64,18 @@ navbarPage("Fatal Encounters",
                           includeScript(file.path("code",
                                                   "gomap.js"))
                         ),
+                        
+                        # Change slider color
+                        tags$head(tags$style(HTML('.js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
+                                                  background: black;
+                                                  border-top: 1px solid #000039 ;
+                                                  border-bottom: 1px solid #000039 ;}
+
+                            /* changes the colour of the number tags */
+                           .irs-from, .irs-to, .irs-single { background: black }'
+                                                  )
+                                             )
+                                  ),
                         
                         # If not using custom CSS, set height of leafletOutput to a number instead of percent
                         leafletOutput("map",
