@@ -8,7 +8,7 @@
 library(leaflet)
 library(spatial)
 library(DT)
-library(metathis)
+# library(metathis)
 
 vars <- c(
   "None" = "none",
@@ -41,22 +41,31 @@ rrraces <- c(
 navbarPage("Fatal Encounters", 
            id="nav",
            theme = shinythemes::shinytheme("cosmo"),
-           header = meta() %>%
-             meta_general(
-               application_name = "Fatal Encounters Visualuzation by kbmorales",
-               description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000"
-             ) %>% 
-             meta_name("github-repo" = "adv-datasci/fatalencounters") %>% 
-             meta_viewport() %>% 
-             meta_social(
-               title = "Police Fatal Encounters Visualization by kbmorales",
-               description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
-               url = "https://jhubiostatistics.shinyapps.io/policeviolence/",
-               image = "share.jpg",
-               image_alt = "Map of individual police-involved deaths",
-               twitter_card_type = "summary"
+           header = tags$head(
+             HTML('<meta property="og:title" content="Fatal Encounters Visualization"'),
+             HTML('<meta property="og:description" content="A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000"'),
+             HTML('<meta property="og:image" content="https://jhubiostatistics.shinyapps.io/policeviolence/share.jpg">'),
+             HTML('<meta property="og:url" content="https://jhubiostatistics.shinyapps.io/policeviolence">'),
+             HTML('<meta property="twitter:title" content="Fatal Encounters Visualization"'),
+             HTML('<meta property="twitter:description" content="A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000"'),
+             HTML('<meta property="twitter:image" content="https://jhubiostatistics.shinyapps.io/policeviolence/share.jpg">'),
+             HTML('<meta property="twitter:card" content="summary_large_image">')
              ),
-             # tags$head(HTML('<meta property="og:image" content="share.jpg">')),
+             
+             # meta() %>%
+             # meta_general(
+             #   application_name = "Fatal Encounters Visualuzation by kbmorales",
+             #   description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000"
+             # ) %>% 
+             # meta_name("github-repo" = "adv-datasci/fatalencounters") %>% 
+             # meta_social(
+             #   title = "Police Fatal Encounters Visualization by kbmorales",
+             #   description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
+             #   url = "https://jhubiostatistics.shinyapps.io/policeviolence/",
+             #   image = "https://jhubiostatistics.shinyapps.io/policeviolence/share.jpg",
+             #   image_alt = "Map of individual police-involved deaths",
+             #   twitter_card_type = "summary_large_image"
+             # ),
            
            ## Intro
            tabPanel("Intro",
