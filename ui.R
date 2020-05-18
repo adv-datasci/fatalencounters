@@ -52,6 +52,7 @@ navbarPage("Fatal Encounters",
              HTML('<meta property="twitter:card" content="summary_large_image">')
              ),
              
+           ## Try metathis package
              # meta() %>%
              # meta_general(
              #   application_name = "Fatal Encounters Visualuzation by kbmorales",

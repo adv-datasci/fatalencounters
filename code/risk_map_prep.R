@@ -171,7 +171,8 @@ death_rates <- county_deaths %>%
 # Download county shape file from Tiger.
 # https://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html
 
-dsn = file.path("data","raw_data","cb_2016_us_county_20m")
+dsn = file.path("data",
+                "cb_2016_us_county_20m")
 us.map <- readOGR(dsn = dsn, stringsAsFactors = FALSE)
 
 # Remove Alaska(2), Hawaii(15), Puerto Rico (72), Guam (66), Virgin Islands (78), American Samoa (60)
@@ -187,8 +188,10 @@ heatmap_data <- merge(us.map,
                       death_rates, 
                       by=c("GEOID"))
 
+# Save
 saveRDS(heatmap_data,
-        file.path("data","processed_data","heatmap_data.RDS"))
+        file.path("data",
+                  "heatmap_data.RDS"))
 
 
 # Review --------------------------------------------------------------------
