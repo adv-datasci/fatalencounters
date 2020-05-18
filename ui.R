@@ -41,27 +41,23 @@ rrraces <- c(
 navbarPage("Fatal Encounters", 
            id="nav",
            theme = shinythemes::shinytheme("cosmo"),
+           header = meta() %>%
+             meta_social(
+               title = "Police Fatal Encounters Visualization by kbmorales",
+               description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
+               url = "https://jhubiostatistics.shinyapps.io/policeviolence/",
+               image = "share.jpg",
+               image_alt = "Map of individual police-involved deaths",
+               twitter_card_type = "summary"
+             ),
+             # tags$head(HTML('<meta property="og:image" content="share.jpg">')),
            
            ## Intro
            tabPanel("Intro",
                     fluidPage(
                       div(id = "about", 
                           class = "card",  
-                          includeMarkdown("./about.Rmd"),
-                          
-                          ## Meta
-                          meta() %>%
-                            meta_social(
-                              title = "Police Fatal Encounters Visualization by kbmorales",
-                              description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
-                              url = "https://jhubiostatistics.shinyapps.io/policeviolence/",
-                              image = "share.jpg",
-                              image_alt = "Map of individual police-involved deaths",
-                              twitter_card_type = "summary"
-                            )
-                          
-                          # # Social media image
-                          # tags$head(HTML('<meta property="og:image" content="share.jpg">'))
+                          includeMarkdown("./about.Rmd")
                       )
                     )
            ),
