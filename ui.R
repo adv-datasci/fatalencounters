@@ -42,6 +42,12 @@ navbarPage("Fatal Encounters",
            id="nav",
            theme = shinythemes::shinytheme("cosmo"),
            header = meta() %>%
+             meta_general(
+               application_name = "Fatal Encounters Visualuzation by kbmorales",
+               description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000"
+             ) %>% 
+             meta_name("github-repo" = "adv-datasci/fatalencounters") %>% 
+             meta_viewport() %>% 
              meta_social(
                title = "Police Fatal Encounters Visualization by kbmorales",
                description = "A visualization of the Fatal Encounters project, cataloguing police-involved deaths since 2000",
