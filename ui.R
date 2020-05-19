@@ -8,7 +8,6 @@
 library(shiny)
 library(leaflet)
 library(DT)
-library(icon)
 
 # library(metathis)
 
