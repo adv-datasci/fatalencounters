@@ -43,7 +43,7 @@ h1, h2, h3, h4 { font-weight: 400; }
   font-size: 12px;
 }
 
-/* If not using map tiles, show a white background */
+/* If not using map tiles, show a black background */
 .leaflet-container {
-  background-color: white !important;
+  background-color: black !important;
 }

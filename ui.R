@@ -5,8 +5,10 @@
 
 # Setup -------------------------------------------------------------------
 
+library(shiny)
 library(leaflet)
 library(DT)
+library(icon)
 
 # library(metathis)
 
@@ -34,7 +36,6 @@ rrraces <- c(
 #   "Native vs. White" = "nativerr",
 #   "Asian vs. White" = "asianrr"
 # )
-
 
 # App ---------------------------------------------------------------------
 
@@ -70,12 +71,16 @@ navbarPage("Fatal Encounters",
            
            ## Intro
            tabPanel("Intro",
+                    ## With about.Rmd
                     fluidPage(
-                      div(id = "about", 
-                          class = "card",  
+                      div(id = "about",
+                          class = "card",
+                          ## Get icons to work
+                          htmltools::tagList(rmarkdown::html_dependency_font_awesome()),
                           includeMarkdown("./about.Rmd")
                       )
                     )
+                    
            ),
 
 # Deaths map --------------------------------------------------------------

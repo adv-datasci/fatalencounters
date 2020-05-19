@@ -4,6 +4,7 @@
 
 # Setup -------------------------------------------------------------------
 
+library(shiny)
 library(leaflet)
 library(leaflet.extras)
 library(tidyverse)
@@ -563,5 +564,7 @@ function(input, output, session) {
   #   columnDefs = list(list(width = '500px', targets = 12))
   # )
   )
+  
+  session$onSessionEnded(stopApp)
   
 }
