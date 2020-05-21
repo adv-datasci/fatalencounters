@@ -356,15 +356,9 @@ function(input, output, session) {
 # Heat map ----------------------------------------------------------------
 
   ## OLD DATA
-  # Merge spatial df with downloaded ddata.
   # leafmap <-readRDS(file.path("data",
   #                             "processed_data",
   #                             "heatmap_data_OLD.RDS"))
-  
-  ## Initial setup MOVED TO GLOBAL
-  # leafmap <-readRDS(file.path("data",
-  #                             "processed_data",
-  #                             "heatmap_data.RDS"))
   
   rrcolorData <- leafmap$death_rate
   pal <- colorNumeric("YlOrRd",
@@ -399,7 +393,7 @@ function(input, output, session) {
       # Format popup data for leaflet map.
       popup_dat <- paste0("<strong>County: </strong>",
                           leafmap$NAME,
-                          "<br><strong>Deaths / 10000: </strong>",
+                          "<br><strong>Death Rate / 10,000: </strong>",
                           round(rrcolorData, 2))
     } else if (rrBy == "blackrr") {
       rrcolorData <- leafmap$blackrr
@@ -439,7 +433,10 @@ function(input, output, session) {
     output$heatmap <- renderLeaflet({
       # Render final map in leaflet.
       leaflet(data = leafmap) %>%
-        addTiles(urlTemplate = "//{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png") %>%
+        addTiles(
+          urlTemplate = "//{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+          attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          ) %>%
         addPolygons(fillColor = ~pal(rrcolorData),
                     fillOpacity = 0.6,
                     color = "#BDBDC3",
@@ -451,7 +448,9 @@ function(input, output, session) {
         addLegend("bottomleft",
                   pal=pal, 
                   values=rrcolorData, 
-                  title= 'Risk',
+                  title= ifelse(rrBy == "death_rate",
+                                "Death Rate / 10,000",
+                                'Risk'),
                   layerId="riskLegend") %>%
         addSearchFeatures(
           targetGroups  = 'counties',

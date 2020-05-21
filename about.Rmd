@@ -21,6 +21,8 @@ These visualizations use data from [Fatal Encounters](https://fatalencounters.or
 
 [https://github.com/adv-datasci/fatalencounters](https://github.com/adv-datasci/fatalencounters)
 
-#### Contact:
+#### By:
 
-Kenneth Morales [<i class="fab fa-github"></i>](https://github.com/kbmorales) [<i class="fas fa-envelope"></i>](mailto:kbmorales@protonmail.com)
+Kenneth Morales [<i class="fas fa-envelope"></i>](mailto:kbmorales@protonmail.com) [<i class="fab fa-github"></i>](https://github.com/kbmorales) [<i class="fab fa-linkedin"></i>](https://www.linkedin.com/in/kenneth-morales)
+
+Linda Gai [<i class="fab fa-github"></i>](https://github.com/lindagai) [<i class="fab fa-linkedin"></i>](https://www.linkedin.com/in/linda-gai-778a5b40)

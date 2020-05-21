@@ -161,7 +161,9 @@ navbarPage("Fatal Encounters",
                         ),
                         
                         tags$div(id="cite",
-                                 'Data compiled for ', tags$em('Fatal Encounters'), ' www.fatalencounters.org'
+                                 'Source: ', 
+                                 tags$em('Fatal Encounters'),
+                                 ' https:://www.fatalencounters.org'
                         )
                     )
            ),
@@ -218,10 +220,10 @@ navbarPage("Fatal Encounters",
                                       ),
                         
                         tags$div(id="cite",
-                                 'Data compiled for ',
+                                 'Sources: ', 
                                  tags$em('Fatal Encounters'),
-                                 ' www.fatalencounters.org'
-                                 )
+                                 ' https:://www.fatalencounters.org; US Census'
+                        )
                     )
            ),
            
