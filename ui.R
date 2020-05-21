@@ -74,8 +74,16 @@ navbarPage("Fatal Encounters",
                     fluidPage(
                       div(id = "about",
                           class = "card",
+                          
+                          tags$head(
+                            # Include our custom CSS
+                            includeCSS(file.path("code",
+                                                 "styles.css"))
+                          ),
+                          
                           ## Get icons to work
                           htmltools::tagList(rmarkdown::html_dependency_font_awesome()),
+                          
                           includeMarkdown("./about.Rmd")
                       )
                     )
