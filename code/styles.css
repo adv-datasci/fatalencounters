@@ -20,8 +20,9 @@ body, label, input, button, select {
 h1, h2, h3, h4 { font-weight: 400; }
 
 .card {
-   width: 959px;
-   margin:100px auto ;
+   margin-top:100px;
+   margin-left:25%;
+   margin-right:25%;
 }
 
 #controls {
