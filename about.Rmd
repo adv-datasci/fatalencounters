@@ -7,7 +7,7 @@ output: html_document
 
 <center>![FatalEncounters](https://www.spreadshirt.com/image-server/v1/mp/designs/12305107,width=178,height=178/police-officer-silhouette.png)</center>
 
-#### **"The nation’s leading law enforcement agency [FBI] collects vast amounts of information on crime nationwide, but missing from this clearinghouse are statistics on where, how often, and under what circumstances police use deadly force. In fact, no one anywhere comprehensively tracks the most significant act police can do in the line of duty: take a life,"**
+#### **"The nation’s leading law enforcement agency [FBI] collects vast amounts of information on crime nationwide, but missing from this clearinghouse are statistics on where, how often, and under what circumstances police use deadly force. In fact, no one anywhere comprehensively tracks the most significant act police can do in the line of duty: take a life"**
 
 #### <p style="text-align: right;">Las Vegas Review-Journal, in its series Deadly Force (Nov. 28, 2011)</p>
 
