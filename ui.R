@@ -14,7 +14,7 @@ library(DT)
 vars <- c(
   "None" = "none",
   "Race" = "race",
-  "Gender" = "sex",
+  "Gender" = "gender",
   "Age" = "age",
   "Cause of death" = "cause"
 )

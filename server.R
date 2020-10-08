@@ -156,16 +156,16 @@ function(input, output, session) {
         theme_minimal() +
         theme(legend.position = "none",
               axis.text=element_text(size=14)) 
-    } else if (input$color == "sex") {
+    } else if (input$color == "gender") {
       ggplot(fatal,
-             aes(x = sex,
-                 fill = sex)) + 
+             aes(x = gender,
+                 fill = gender)) + 
         geom_bar() + 
         coord_flip() +
         labs(x = "",
              y = "Count") +
         scale_fill_viridis_d() +
-        scale_x_discrete(limits = rev(levels(fatal$sex))) +
+        scale_x_discrete(limits = rev(levels(fatal$gender))) +
         theme_minimal() +
         theme(legend.position = "none",
               axis.text=element_text(size=14)) 
@@ -265,8 +265,8 @@ function(input, output, session) {
       } else if (colorBy == "cause") {
         colorData <- fatal$cause
         
-      } else if (colorBy == "sex") {
-        colorData <- fatal$sex
+      } else if (colorBy == "gender") {
+        colorData <- fatal$gender
         
       } else if (colorBy == "age") {
         colorData <- fatal$agerng
@@ -331,7 +331,7 @@ function(input, output, session) {
       sprintf("%s, %s %s",
               selectedZip$city, selectedZip$state, selectedZip$zipcode
       ), tags$br(),
-      sprintf("Sex: %s", selectedZip$sex), tags$br(),
+      sprintf("Gender: %s", selectedZip$gender), tags$br(),
       sprintf("Age: %s", selectedZip$age), tags$br(),
       sprintf("Race: %s", selectedZip$race), tags$br(),
       sprintf("Cause of death: %s", selectedZip$cause), tags$br(),
@@ -534,7 +534,7 @@ function(input, output, session) {
         "Image" = img,
         "Date" = date,
         "Age" = age,
-        "Gender" = sex,
+        "Gender" = gender,
         "Race" = race,
         "City" = city, 
         "State" = state,

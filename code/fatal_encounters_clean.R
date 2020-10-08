@@ -16,37 +16,39 @@ library(lubridate)
 # Data clean --------------------------------------------------------------
 
 ## Remove final row alerting to unverified data
-stop_row <- which(fatal$subjects_name=="Items below this row have not been fact-checked.")
+stop_row <- which(fatal$name=="This is a spacer for Fatal Encounters use.")
 
 fatal <- fatal %>% filter(row_number() < stop_row)
 
 fatal <- fatal %>%
-  select(name = subjects_name,
-         url_name = url_of_image_of_deceased,
+  select(name, # = subjects_name,
+         url_name = url_of_image_internal_use_only,
          date = date_of_injury_resulting_in_death_month_day_year,
-         age = subjects_age,
-         sex = subjects_gender,
-         race = subjects_race_with_imputations,
-         description = a_brief_description_of_the_circumstances_surrounding_the_death,
+         age, # = subjects_age,
+         # sex = subjects_gender,
+         gender,
+         race = race_with_imputations,
+         description = brief_description,  # a_brief_description_of_the_circumstances_surrounding_the_death,
          official_description = dispositions_exclusions_internal_use_not_for_analysis,
-         news_link = link_to_news_article_or_photo_of_official_document,
+         news_link = supporting_document_link,  # link_to_news_article_or_photo_of_official_document,
          # address = location_of_injury_address,
          city = location_of_death_city,
          county = location_of_death_county,
-         state = location_of_death_state,
+         state, # = location_of_death_state,
          zipcode = location_of_death_zip_code,
          lat = latitude,
          lon = longitude,
-         agency = agency_responsible_for_death,
+         agency = agency_or_agencies_involved, # agency_responsible_for_death,
          cause = cause_of_death,
-         mental_ill = symptoms_of_mental_illness_internal_use_not_for_analysis,
-         year = date_year
+         mental_ill = foreknowledge_of_mental_illness_internal_use_not_for_analysis, # symptoms_of_mental_illness_internal_use_not_for_analysis,
+         # year = date_year
   )
 
 # Date
 fatal <- fatal %>%
   mutate(date = as.Date(date,
-                        format = "%m/%d/%Y"))
+                        format = "%m/%d/%Y")) %>% 
+  mutate(year = year(date))
 
 # Year
 fatal <- fatal %>%
@@ -125,14 +127,14 @@ fatal <- fatal %>%
          )
 
 # Gender
-unique(fatal$sex)
-fatal$sex[fatal$sex == "Femalr"] <- "Female"
-fatal$sex[fatal$sex == "Transexual"] <- "Transgender"
-fatal$sex[is.na(fatal$sex)] <- "Unknown"
-fatal$sex[fatal$sex == "White"] <- "Unknown"
+unique(fatal$gender)
+fatal$gender[fatal$gender == "Femalr"] <- "Female"
+fatal$gender[fatal$gender == "Trangenderual"] <- "Transgender"
+fatal$gender[is.na(fatal$gender)] <- "Unknown"
+fatal$gender[fatal$gender == "White"] <- "Unknown"
 
 fatal <- fatal %>% 
-  mutate(sex = factor(sex,
+  mutate(gender = factor(gender,
                       levels = c("Female",
                                  "Male",
                                  "Transgender",
@@ -168,7 +170,7 @@ fatal <- fatal %>%
 ###
 
 fatal$easy <- T
-fatal$easy[fatal$sex == "Unknown"] <- F
+fatal$easy[fatal$gender == "Unknown"] <- F
 fatal$easy[fatal$race == "Unknown"] <- F
 fatal$easy[fatal$agerng == "Unknown"] <- F
 
