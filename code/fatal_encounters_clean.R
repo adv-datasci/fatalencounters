@@ -16,7 +16,7 @@ library(lubridate)
 # Data clean --------------------------------------------------------------
 
 ## Remove final row alerting to unverified data
-stop_row <- which(fatal$name=="This is a spacer for Fatal Encounters use.")
+stop_row <- which(fatal$subjects_name=="This is a spacer for Fatal Encounters use.")
 
 fatal <- fatal %>% filter(row_number() < stop_row)
 
