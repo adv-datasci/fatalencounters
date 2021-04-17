@@ -16,13 +16,13 @@ library(lubridate)
 # Data clean --------------------------------------------------------------
 
 ## Remove final row alerting to unverified data
-stop_row <- which(fatal$subjects_name=="This is a spacer for Fatal Encounters use.")
+stop_row <- which(fatal$name=="This is a spacer for Fatal Encounters use.")
 
 fatal <- fatal %>% filter(row_number() < stop_row)
 
 fatal <- fatal %>%
   select(name, # = subjects_name,
-         url_name = url_of_image_internal_use_only,
+         url_name = url_of_image_pls_no_hotlinks,
          date = date_of_injury_resulting_in_death_month_day_year,
          age, # = subjects_age,
          # sex = subjects_gender,
@@ -39,7 +39,7 @@ fatal <- fatal %>%
          lat = latitude,
          lon = longitude,
          agency = agency_or_agencies_involved, # agency_responsible_for_death,
-         cause = cause_of_death,
+         cause = highest_level_of_force,
          mental_ill = foreknowledge_of_mental_illness_internal_use_not_for_analysis, # symptoms_of_mental_illness_internal_use_not_for_analysis,
          # year = date_year
   )
