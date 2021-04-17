@@ -311,23 +311,27 @@ function(input, output, session) {
     
     ## Prepare selection
     selectedZip <- fatal[fatal$name == name,] %>% 
-      mutate(img = ifelse(!is.na(url_name),
-                          paste("<center><img src='", 
-                                url_name,
-                                "' height=",
-                                "'100'></img></center>",
-                                sep=""),
-                          "No image on file"),
-             source = paste("<a href='",
-                            news_link,
-                            "'>Link</a>",
-                            sep="")
+      mutate(
+        img = NA,
+        ## Removing 2021-04-17
+        # img = ifelse(!is.na(url_name),
+        #              paste("<center><img src='", 
+        #              url_name,
+        #              "' height=",
+        #              "'100'></img></center>",
+        #              sep=""),
+        #              "No image on file"),
+        source = paste("<a href='",
+                       news_link,
+                       "'>Link</a>",
+                       sep="")
       )
     
     ## Display
     content <- as.character(tagList(
       tags$strong(selectedZip$name),tags$br(),
-      HTML(selectedZip$img), tags$br(),
+      ## Removing 2021-04-17
+      # HTML(selectedZip$img), tags$br(),
       sprintf("%s, %s %s",
               selectedZip$city, selectedZip$state, selectedZip$zipcode
       ), tags$br(),
@@ -508,17 +512,20 @@ function(input, output, session) {
     
     df <- fatal %>%
       arrange(desc(date)) %>%
-      mutate(img = ifelse(!is.na(url_name),
-                          paste("<img src='", 
-                                url_name,
-                                "' height=",
-                                "'100'></img>",
-                                sep=""),
-                          NA),
-             source = paste("<a href='",
-                            news_link,
-                            "'>Link</a>",
-                            sep="")
+      mutate(
+        img = NA,
+        ## Removing 2021-04-17 as links broken
+        # img = ifelse(!is.na(url_name),
+        #              paste("<img src='", 
+        #                    url_name,
+        #                    "' height=",
+        #                    "'100'></img>",
+        #                    sep=""),
+        #              NA),
+        source = paste("<a href='",
+                       news_link,
+                       "'>Link</a>",
+                       sep="")
       )
     
     
@@ -531,7 +538,7 @@ function(input, output, session) {
     df<-df %>%
       select(
         "Name" = name,
-        "Image" = img,
+        # "Image" = img,
         "Date" = date,
         "Age" = age,
         "Gender" = gender,
