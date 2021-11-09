@@ -182,3 +182,4 @@ fatalnoteasy <- subset(fatal, easy == F)
 # Cleanup -----------------------------------------------------------------
 
 rm(stop_row, unique_ages)
+
